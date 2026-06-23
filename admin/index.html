@@ -4,42 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Admin · Cohort Lab Usage Uploader</title>
+<title>Admin · Lumen Lab Uploader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#0e1518;--ink2:#13201f;--panel:#16201f;--line:#26332f;--line2:#324340;
-  --txt:#e8e6df;--txt-dim:#9fb0aa;--txt-mute:#6f8079;
-  --teal:#2f9c8f;--teal-bright:#46c2b1;--teal-soft:#1d3a37;--gold:#c8a24a;
-  --good:#5aa777;--warn:#d9a441;--bad:#c8694e;--bad-soft:#3a221c;
-  --serif:'Fraunces',Georgia,serif;--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;
-}
+:root{--paper:#FBFAF7;--card:#FFFFFF;--ink:#1E2733;--dim:#626A75;--mute:#9AA0A8;--line:#EAE6DC;--line2:#DED9CC;
+  --navy:#1B2A4A;--navy2:#2C4373;--navy-soft:#EEF1F7;--navy-ink:#0F1B33;--brass:#A8762E;--brass-soft:#F6EFE2;--brass-line:#E7D6B5;
+  --good:#4F7A52;--amber:#9A6B1F;--serif:'Fraunces',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1100px 560px at 80% -10%,#15211f,var(--ink) 55%);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.55}
-h1,h2{font-family:var(--serif);font-weight:600;margin:0}
-.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
-.wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;box-shadow:0 12px 30px -18px rgba(0,0,0,.7);margin-bottom:18px}
-label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-mute);margin:14px 0 5px}
-input[type=text],input[type=password]{width:100%;padding:11px 13px;background:var(--ink2);border:1px solid var(--line2);border-radius:9px;color:var(--txt);font-family:var(--mono);font-size:13px}
-input:focus{outline:none;border-color:var(--teal)}
-input[type=file]{width:100%;color:var(--txt-dim);font-size:13px;margin-top:6px}
-button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;font-weight:600}
-.primary{background:var(--teal);color:#04110f;padding:12px 16px;font-size:14px;width:100%}
-.primary:hover{background:var(--teal-bright)} .primary:disabled{opacity:.4;cursor:not-allowed}
-.ghost{background:var(--ink2);border:1px solid var(--line2);color:var(--txt-dim);padding:8px 12px;font-size:12.5px}
-.ghost:hover{color:var(--txt)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+h1,h2{font-family:var(--serif);font-weight:500;margin:0;color:var(--ink)}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass)}
+.wrap{max-width:660px;margin:0 auto;padding:42px 24px 80px}
+.card{background:var(--card);border:0.5px solid var(--line2);border-radius:13px;padding:26px;box-shadow:0 14px 40px -28px rgba(27,42,74,.35);margin-bottom:18px}
+label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
+input[type=text],input[type=password]{width:100%;padding:11px 13px;background:var(--paper);border:0.5px solid var(--line2);border-radius:9px;color:var(--ink);font-family:var(--mono);font-size:13px}
+input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-soft)}
+input[type=file]{width:100%;color:var(--dim);font-size:13px;margin-top:6px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;font-weight:500}
+.primary{background:var(--navy);color:#fff;padding:12px 16px;font-size:14px;width:100%}
+.primary:hover{background:var(--navy-ink)} .primary:disabled{opacity:.4;cursor:not-allowed}
+.ghost{background:var(--paper);border:0.5px solid var(--line2);color:var(--dim);padding:8px 12px;font-size:12.5px}
+.ghost:hover{color:var(--ink);border-color:var(--navy)}
 .row{display:flex;gap:10px;align-items:center}
-.muted{color:var(--txt-mute);font-size:12.5px}
-.err{color:var(--bad)} .ok{color:var(--good)} .warn{color:var(--warn)}
-#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--ink);z-index:30}
+.muted{color:var(--dim);font-size:12.5px}
+.err{color:var(--brass)} .ok{color:var(--good)} .warn{color:var(--amber)}
+#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--paper);z-index:30}
 #gate .card{width:min(400px,92vw)}
-h1{font-size:24px;margin:6px 0 2px} h2{font-size:16px;margin-bottom:10px}
-.log{font-family:var(--mono);font-size:12px;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;max-height:240px;overflow:auto;white-space:pre-wrap}
-.log .l{padding:1px 0} .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:20px;background:var(--teal-soft);color:var(--teal-bright);margin-left:8px}
-a{color:var(--teal-bright)}
+h1{font-size:24px;margin:8px 0 2px} h2{font-size:16px;margin-bottom:10px}
+.log{font-family:var(--mono);font-size:12px;background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;max-height:240px;overflow:auto;white-space:pre-wrap}
+.log .l{padding:1px 0}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:20px;background:var(--navy-soft);color:var(--navy);margin-left:8px}
+.steptag{font-family:var(--mono);font-size:11px;color:var(--brass);letter-spacing:.05em}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -48,7 +45,7 @@ a{color:var(--teal-bright)}
 <div id="gate">
   <div class="card">
     <div class="kicker">BITS Pilani Digital</div>
-    <h1>Admin Uploader</h1>
+    <h1>Lumen Lab · Admin</h1>
     <p class="muted">Same access password as the dashboard. It also encrypts the file.</p>
     <label>Password</label>
     <input id="pw" type="password" autocomplete="current-password">
@@ -59,30 +56,33 @@ a{color:var(--teal-bright)}
 </div>
 
 <div class="wrap" id="app" style="display:none">
-  <div class="kicker">Admin</div>
-  <h1 style="margin-bottom:18px">Cohort Lab Usage · Uploader</h1>
+  <div class="kicker">Admin uploader</div>
+  <h1 style="margin-bottom:20px">Cohort lab usage</h1>
 
   <div class="card">
-    <h2>1 · GitHub access token</h2>
+    <div class="steptag">Step 1</div>
+    <h2>GitHub access token</h2>
     <p class="muted">Fine-grained token with <b>Contents: Read &amp; write</b> on the target repo. Pasted at runtime — never committed.</p>
     <label>Token</label>
     <input id="tok" type="password" placeholder="github_pat_…">
     <div class="row" style="margin-top:10px">
-      <label style="margin:0"><input type="checkbox" id="remember" style="width:auto"> remember for this tab</label>
+      <label style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:12.5px;color:var(--dim)"><input type="checkbox" id="remember" style="width:auto;vertical-align:-1px"> remember for this tab</label>
       <button class="ghost" id="forget" style="margin-left:auto">Forget token</button>
     </div>
-    <div class="muted" style="margin-top:8px">Target: <span class="mono" id="repoLine"></span></div>
+    <div class="muted" style="margin-top:10px">Target: <span class="mono" id="repoLine"></span></div>
   </div>
 
   <div class="card">
-    <h2>2 · Choose the CSV export</h2>
+    <div class="steptag">Step 2</div>
+    <h2>Choose the CSV export</h2>
     <p class="muted">The cohort report CSV. It is validated, encrypted, then pushed.</p>
     <input id="file" type="file" accept=".csv,text/csv">
     <div class="muted" id="fileInfo" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
-    <h2>3 · Validate, encrypt &amp; push</h2>
+    <div class="steptag">Step 3</div>
+    <h2>Validate, encrypt &amp; push</h2>
     <p class="muted">Writes a dated backup and the live file. Existing files are updated via their SHA (with one retry).</p>
     <button class="primary" id="go" disabled>Encrypt &amp; upload</button>
     <div class="log" id="log" style="display:none"></div>
@@ -95,17 +95,16 @@ a{color:var(--teal-bright)}
 /* =================================================================================
    CONFIG  —  CONFIRM THESE  ▼▼▼
    ================================================================================= */
-const GITHUB_OWNER  = 'ravi-agarwal-bits-digital';   // <-- your GitHub user/org
-const GITHUB_REPO   = 'lumen-lab-analytics';    // <-- the public Pages repo
-const GITHUB_BRANCH = 'main';            // <-- branch Pages serves from
+const GITHUB_OWNER  = 'ravi-agarwal-bits-digital';
+const GITHUB_REPO   = 'lumen-lab-analytics';
+const GITHUB_BRANCH = 'main';
 /* ▲▲▲  CONFIRM THESE  ============================================================ */
 
-const DATA_FILE_LIVE   = 'data/cohort-report.csv';                 // live path the dashboard fetches
-const DATA_FILE_PREFIX = 'data/cohort-report';                     // dated backup => <prefix>_YYYY-MM-DD.csv
-const ADMIN_PASSWORD_HASH = 'c33cf8fc5aa884baed13a7cd33300f9cea032afbee87ad79a53853cb17206ba8'; // SHA-256 of access password ("cohort2025"); MUST match dashboard
-const REQUIRED_COLS = ['User','Course','Status','EC2 Total Time','First Seen','Hours Used']; // minimal proof it's the right file
+const DATA_FILE_LIVE   = 'data/cohort-report.csv';
+const DATA_FILE_PREFIX = 'data/cohort-report';
+const ADMIN_PASSWORD_HASH = 'c33cf8fc5aa884baed13a7cd33300f9cea032afbee87ad79a53853cb17206ba8'; // SHA-256 of access password; MUST match dashboard
+const REQUIRED_COLS = ['User','Course','Status','EC2 Total Time','First Seen','Hours Used'];
 
-/* ---------- crypto (matches dashboard) ---------- */
 const MAGIC='AANYAENC1'; const te=new TextEncoder();
 async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',te.encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 async function deriveKey(pw,salt){const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
@@ -120,12 +119,10 @@ async function encrypt(text,pw){
 }
 function toB64(bytes){let s='';const C=0x8000;for(let i=0;i<bytes.length;i+=C)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+C));return btoa(s);}
 
-/* ---------- state ---------- */
 let PW='', CSV_TEXT='', FILE_OK=false;
 const $=s=>document.querySelector(s);
 const TKEY='cohort_admin_tok';
 
-/* ---------- auth ---------- */
 async function unlock(pw){
   if(await sha256hex(pw)!==ADMIN_PASSWORD_HASH){$('#gerr').textContent='Incorrect password.';return;}
   PW=pw; $('#gate').style.display='none'; $('#app').style.display='block';
@@ -137,7 +134,6 @@ $('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock($('#pw').value
 $('#lock').onclick=()=>{PW='';location.reload();};
 $('#forget').onclick=()=>{sessionStorage.removeItem(TKEY);$('#tok').value='';$('#remember').checked=false;};
 
-/* ---------- file validation ---------- */
 $('#file').addEventListener('change',async e=>{
   FILE_OK=false; $('#go').disabled=true; const f=e.target.files[0]; if(!f) return;
   CSV_TEXT=await f.text();
@@ -145,21 +141,16 @@ $('#file').addEventListener('change',async e=>{
   const cols=firstLine.split(',').map(c=>c.replace(/^"|"$/g,'').trim());
   const missing=REQUIRED_COLS.filter(c=>!cols.includes(c));
   const rowCount=CSV_TEXT.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim()).length-1;
-  if(missing.length){
-    $('#fileInfo').innerHTML=`<span class="err">✗ Missing required columns: ${missing.join(', ')}</span>`;
-    return;
-  }
+  if(missing.length){$('#fileInfo').innerHTML=`<span class="err">✗ Missing required columns: ${missing.join(', ')}</span>`;return;}
   FILE_OK=true; $('#go').disabled=false;
   $('#fileInfo').innerHTML=`<span class="ok">✓ ${f.name}</span> · ${rowCount} rows · ${cols.length} columns`;
 });
 
-/* ---------- GitHub PUT with SHA + retry ---------- */
 function token(){return $('#tok').value.trim();}
 function logln(msg,cls){const el=$('#log');el.style.display='block';const d=document.createElement('div');d.className='l '+(cls||'');d.innerHTML=msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
 async function gh(path,opts){
   return fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,{
-    ...opts, headers:{Authorization:`Bearer ${token()}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opts&&opts.headers||{})}
-  });
+    ...opts, headers:{Authorization:`Bearer ${token()}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opts&&opts.headers||{})}});
 }
 async function getSha(path){
   const r=await gh(`${path}?ref=${GITHUB_BRANCH}`,{method:'GET'});
