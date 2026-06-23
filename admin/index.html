@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Cohort Lab Usage Uploader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1518;--ink2:#13201f;--panel:#16201f;--line:#26332f;--line2:#324340;
+  --txt:#e8e6df;--txt-dim:#9fb0aa;--txt-mute:#6f8079;
+  --teal:#2f9c8f;--teal-bright:#46c2b1;--teal-soft:#1d3a37;--gold:#c8a24a;
+  --good:#5aa777;--warn:#d9a441;--bad:#c8694e;--bad-soft:#3a221c;
+  --serif:'Fraunces',Georgia,serif;--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 80% -10%,#15211f,var(--ink) 55%);color:var(--txt);font-family:var(--sans);font-size:14px;line-height:1.55}
+h1,h2{font-family:var(--serif);font-weight:600;margin:0}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+.wrap{max-width:640px;margin:0 auto;padding:40px 24px 80px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;box-shadow:0 12px 30px -18px rgba(0,0,0,.7);margin-bottom:18px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-mute);margin:14px 0 5px}
+input[type=text],input[type=password]{width:100%;padding:11px 13px;background:var(--ink2);border:1px solid var(--line2);border-radius:9px;color:var(--txt);font-family:var(--mono);font-size:13px}
+input:focus{outline:none;border-color:var(--teal)}
+input[type=file]{width:100%;color:var(--txt-dim);font-size:13px;margin-top:6px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;font-weight:600}
+.primary{background:var(--teal);color:#04110f;padding:12px 16px;font-size:14px;width:100%}
+.primary:hover{background:var(--teal-bright)} .primary:disabled{opacity:.4;cursor:not-allowed}
+.ghost{background:var(--ink2);border:1px solid var(--line2);color:var(--txt-dim);padding:8px 12px;font-size:12.5px}
+.ghost:hover{color:var(--txt)}
+.row{display:flex;gap:10px;align-items:center}
+.muted{color:var(--txt-mute);font-size:12.5px}
+.err{color:var(--bad)} .ok{color:var(--good)} .warn{color:var(--warn)}
+#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--ink);z-index:30}
+#gate .card{width:min(400px,92vw)}
+h1{font-size:24px;margin:6px 0 2px} h2{font-size:16px;margin-bottom:10px}
+.log{font-family:var(--mono);font-size:12px;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;max-height:240px;overflow:auto;white-space:pre-wrap}
+.log .l{padding:1px 0} .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:20px;background:var(--teal-soft);color:var(--teal-bright);margin-left:8px}
+a{color:var(--teal-bright)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="card">
+    <div class="kicker">BITS Pilani Digital</div>
+    <h1>Admin Uploader</h1>
+    <p class="muted">Same access password as the dashboard. It also encrypts the file.</p>
+    <label>Password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <div style="height:12px"></div>
+    <button class="primary" id="enter">Unlock</button>
+    <div class="err" id="gerr" style="margin-top:8px;min-height:16px;font-size:12.5px"></div>
+  </div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <div class="kicker">Admin</div>
+  <h1 style="margin-bottom:18px">Cohort Lab Usage · Uploader</h1>
+
+  <div class="card">
+    <h2>1 · GitHub access token</h2>
+    <p class="muted">Fine-grained token with <b>Contents: Read &amp; write</b> on the target repo. Pasted at runtime — never committed.</p>
+    <label>Token</label>
+    <input id="tok" type="password" placeholder="github_pat_…">
+    <div class="row" style="margin-top:10px">
+      <label style="margin:0"><input type="checkbox" id="remember" style="width:auto"> remember for this tab</label>
+      <button class="ghost" id="forget" style="margin-left:auto">Forget token</button>
+    </div>
+    <div class="muted" style="margin-top:8px">Target: <span class="mono" id="repoLine"></span></div>
+  </div>
+
+  <div class="card">
+    <h2>2 · Choose the CSV export</h2>
+    <p class="muted">The cohort report CSV. It is validated, encrypted, then pushed.</p>
+    <input id="file" type="file" accept=".csv,text/csv">
+    <div class="muted" id="fileInfo" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <h2>3 · Validate, encrypt &amp; push</h2>
+    <p class="muted">Writes a dated backup and the live file. Existing files are updated via their SHA (with one retry).</p>
+    <button class="primary" id="go" disabled>Encrypt &amp; upload</button>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+
+  <button class="ghost" id="lock">Lock &amp; sign out</button>
+</div>
+
+<script>
+/* =================================================================================
+   CONFIG  —  CONFIRM THESE  ▼▼▼
+   ================================================================================= */
+const GITHUB_OWNER  = 'CONFIRM-owner';   // <-- your GitHub user/org
+const GITHUB_REPO   = 'CONFIRM-repo';    // <-- the public Pages repo
+const GITHUB_BRANCH = 'main';            // <-- branch Pages serves from
+/* ▲▲▲  CONFIRM THESE  ============================================================ */
+
+const DATA_FILE_LIVE   = 'data/cohort-report.csv';                 // live path the dashboard fetches
+const DATA_FILE_PREFIX = 'data/cohort-report';                     // dated backup => <prefix>_YYYY-MM-DD.csv
+const ADMIN_PASSWORD_HASH = 'db8fcdc681662c7303c1390b73f588318a04d4faaf4273e2001d058bebd6b56e'; // SHA-256 of access password ("cohort2025"); MUST match dashboard
+const REQUIRED_COLS = ['User','Course','Status','EC2 Total Time','First Seen','Hours Used']; // minimal proof it's the right file
+
+/* ---------- crypto (matches dashboard) ---------- */
+const MAGIC='AANYAENC1'; const te=new TextEncoder();
+async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',te.encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function deriveKey(pw,salt){const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt']);}
+async function encrypt(text,pw){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await deriveKey(pw,salt);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode(text)));
+  const out=new Uint8Array(9+16+12+ct.length); let o=0;
+  out.set(te.encode(MAGIC),o);o+=9; out.set(salt,o);o+=16; out.set(iv,o);o+=12; out.set(ct,o);
+  return out;
+}
+function toB64(bytes){let s='';const C=0x8000;for(let i=0;i<bytes.length;i+=C)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+C));return btoa(s);}
+
+/* ---------- state ---------- */
+let PW='', CSV_TEXT='', FILE_OK=false;
+const $=s=>document.querySelector(s);
+const TKEY='cohort_admin_tok';
+
+/* ---------- auth ---------- */
+async function unlock(pw){
+  if(await sha256hex(pw)!==ADMIN_PASSWORD_HASH){$('#gerr').textContent='Incorrect password.';return;}
+  PW=pw; $('#gate').style.display='none'; $('#app').style.display='block';
+  $('#repoLine').textContent=`${GITHUB_OWNER}/${GITHUB_REPO} @ ${GITHUB_BRANCH}`;
+  const saved=sessionStorage.getItem(TKEY); if(saved){$('#tok').value=saved;$('#remember').checked=true;}
+}
+$('#enter').onclick=()=>unlock($('#pw').value);
+$('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock($('#pw').value);});
+$('#lock').onclick=()=>{PW='';location.reload();};
+$('#forget').onclick=()=>{sessionStorage.removeItem(TKEY);$('#tok').value='';$('#remember').checked=false;};
+
+/* ---------- file validation ---------- */
+$('#file').addEventListener('change',async e=>{
+  FILE_OK=false; $('#go').disabled=true; const f=e.target.files[0]; if(!f) return;
+  CSV_TEXT=await f.text();
+  const firstLine=CSV_TEXT.replace(/^\uFEFF/,'').split(/\r?\n/)[0]||'';
+  const cols=firstLine.split(',').map(c=>c.replace(/^"|"$/g,'').trim());
+  const missing=REQUIRED_COLS.filter(c=>!cols.includes(c));
+  const rowCount=CSV_TEXT.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim()).length-1;
+  if(missing.length){
+    $('#fileInfo').innerHTML=`<span class="err">✗ Missing required columns: ${missing.join(', ')}</span>`;
+    return;
+  }
+  FILE_OK=true; $('#go').disabled=false;
+  $('#fileInfo').innerHTML=`<span class="ok">✓ ${f.name}</span> · ${rowCount} rows · ${cols.length} columns`;
+});
+
+/* ---------- GitHub PUT with SHA + retry ---------- */
+function token(){return $('#tok').value.trim();}
+function logln(msg,cls){const el=$('#log');el.style.display='block';const d=document.createElement('div');d.className='l '+(cls||'');d.innerHTML=msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
+async function gh(path,opts){
+  return fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,{
+    ...opts, headers:{Authorization:`Bearer ${token()}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opts&&opts.headers||{})}
+  });
+}
+async function getSha(path){
+  const r=await gh(`${path}?ref=${GITHUB_BRANCH}`,{method:'GET'});
+  if(r.status===200){const j=await r.json();return j.sha;} if(r.status===404)return null; throw new Error(`GET ${path} → ${r.status}`);
+}
+async function putFile(path,b64,msg){
+  for(let attempt=1;attempt<=2;attempt++){
+    const sha=await getSha(path);
+    const body={message:msg,content:b64,branch:GITHUB_BRANCH}; if(sha)body.sha=sha;
+    const r=await gh(path,{method:'PUT',body:JSON.stringify(body)});
+    if(r.ok){logln(`  ✓ ${path}${sha?' (updated)':' (created)'}`,'ok');return;}
+    if((r.status===409||r.status===422)&&attempt===1){logln(`  … ${path} ${r.status}, retrying with fresh SHA`,'warn');continue;}
+    const t=await r.text(); throw new Error(`PUT ${path} → ${r.status}: ${t.slice(0,160)}`);
+  }
+}
+
+$('#go').onclick=async()=>{
+  if(!FILE_OK){logln('Choose a valid CSV first.','err');return;}
+  if(!token()){logln('Paste a GitHub token first.','err');return;}
+  $('#go').disabled=true; $('#log').innerHTML='';
+  if($('#remember').checked) sessionStorage.setItem(TKEY,token()); else sessionStorage.removeItem(TKEY);
+  try{
+    logln('Encrypting (AES-256-GCM, PBKDF2 150k)…');
+    const enc=await encrypt(CSV_TEXT,PW); const b64=toB64(enc);
+    logln(`  ✓ ${enc.length.toLocaleString()} bytes ciphertext <span class="pill">magic ${MAGIC}</span>`,'ok');
+    const d=new Date(); const dated=`${DATA_FILE_PREFIX}_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.csv`;
+    logln('Pushing dated backup…'); await putFile(dated,b64,`Cohort backup ${d.toISOString().slice(0,10)}`);
+    logln('Pushing live file…');   await putFile(DATA_FILE_LIVE,b64,`Cohort live update ${d.toISOString().slice(0,10)}`);
+    logln('Done. Dashboard will serve the new data on next unlock.','ok');
+  }catch(err){logln('✗ '+(err.message||err),'err');}
+  $('#go').disabled=false;
+};
+</script>
+</body>
+</html>
