@@ -103,7 +103,7 @@ const GITHUB_BRANCH = 'main';
 const DATA_FILE_LIVE   = 'data/cohort-report.csv';
 const DATA_FILE_PREFIX = 'data/cohort-report';
 const ADMIN_PASSWORD_HASH = 'c33cf8fc5aa884baed13a7cd33300f9cea032afbee87ad79a53853cb17206ba8'; // SHA-256 of access password; MUST match dashboard
-const REQUIRED_COLS = ['User','Course','Status','EC2 Total Time','First Seen','Hours Used'];
+const REQUIRED_COLS = ['User','Course','Status','Start Date','EC2 Total Time','First Seen','Last Seen'];
 
 const MAGIC='AANYAENC1'; const te=new TextEncoder();
 async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',te.encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
