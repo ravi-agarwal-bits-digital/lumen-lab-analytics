@@ -240,8 +240,8 @@ function parseCSV(text){
   if(field.length||row.length){row.push(field);rows.push(row);}
   return rows;
 }
-function parseMDY(s){s=(s||'').trim();const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(!m)return null;return {Y:+m[3],M:+m[1],D:+m[2],key:+m[3]*10000+ +m[1]*100+ +m[2]};}
-function parseDateTime(s){s=(s||'').trim();const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);if(!m)return null;return {Y:+m[3],M:+m[1],D:+m[2],h:+m[4],mi:+m[5],key:+m[3]*10000+ +m[1]*100+ +m[2]};}
+function parseMDY(s){s=(s||'').trim();const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;return {Y:+m[1],M:+m[2],D:+m[3],key:+m[1]*10000+ +m[2]*100+ +m[3]};}
+function parseDateTime(s){s=(s||'').trim();const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);if(!m)return null;return {Y:+m[1],M:+m[2],D:+m[3],h:+m[4],mi:+m[5],key:+m[1]*10000+ +m[2]*100+ +m[3]};}
 function parseDurationH(s){s=(s||'').trim();if(!s)return null;let days=0;let m=s.match(/^(\d+)\s*day[s]?,\s*(.+)$/i);if(m){days=+m[1];s=m[2].trim();}m=s.match(/^(\d{1,2}):(\d{2}):(\d{2})(?:\s*(AM|PM))?$/i);if(!m)return null;let h=+m[1];const mi=+m[2],se=+m[3],ap=m[4]&&m[4].toUpperCase();if(ap==='AM'&&h===12)h=0;else if(ap==='PM'&&h!==12)h+=12;return days*24+h+mi/60+se/3600;}
 const MN=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtKey(k){if(!k)return '—';const Y=Math.floor(k/10000),M=Math.floor(k/100)%100,D=k%100;return `${MN[M]} ${D}, ${Y}`;}
@@ -251,6 +251,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 function maskEmail(e){if(!MASK_PII)return e;const m=String(e).match(/^(.{1,2}).*?(@.*)$/);return m?m[1]+'…'+m[2]:'…';}
 function maskName(n){return n;}  /* names shown in view; emails masked. Full values in CSV exports. */
 
+function cohortOf(startKey){if(!startKey)return 'Unknown cohort';const Y=Math.floor(startKey/10000),M=Math.floor(startKey/100)%100;return (M<=6?'H1 (Jan–Jun)':'H2 (Jul–Dec)')+' '+Y;}
 function buildRecords(text){
   const rows=parseCSV(text); const hdr=rows[0].map(h=>h.trim()); const ix={}; hdr.forEach((h,i)=>ix[h]=i);
   const recs=[];
@@ -258,11 +259,14 @@ function buildRecords(text){
     const row=rows[r]; if(!row||row.every(c=>c.trim()==='')) continue;
     const g=n=>(row[ix[n]]!=null?row[ix[n]]:'').trim();
     const fs=parseDateTime(g('First Seen')), ls=parseDateTime(g('Last Seen'));
-    const ec2h=parseFloat(g('Hours Used'))||0; const connh=parseDurationH(g('Connection Time'));
-    const connected=!!fs; const idleh=connected?Math.max(0,ec2h-(connh||0)):ec2h;
+    const at=fs||ls; const atFromLS=!fs&&!!ls;          /* activity timestamp: First Seen preferred, else Last Seen */
+    const ec2h=parseDurationH(g('EC2 Total Time'))||0;  /* compute hours derived from EC2 Total Time (instance uptime) */
+    const connh=parseDurationH(g('Connection Time'));
+    const connected=!!at; const idleh=connected?Math.max(0,ec2h-(connh||0)):ec2h;
+    const sk=(parseMDY(g('Start Date'))||{}).key||0;
     const rec={i:recs.length,user:g('User'),userName:g('User Name'),course:g('Course'),status:g('Status'),
-      startKey:(parseMDY(g('Start Date'))||{}).key||0,ec2h,connh,fs,ls,connected,idleh,
-      cohort:(g('Half year')+' '+g('Year')).trim(),band:'',raw:{}};
+      startKey:sk,ec2h,connh,fs,ls,at,atFromLS,connected,idleh,
+      cohort:cohortOf(sk),band:'',raw:{}};
     hdr.forEach(h=>rec.raw[h]=g(h)); rec.band=classify(rec); recs.push(rec);
   }
   return recs;
@@ -274,7 +278,7 @@ const sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x),0); const div=(a,b)=>b?a/b:0; cons
 const STATE={all:[],cohort:'__all',from:'',to:''};
 function cohortPool(){return STATE.cohort==='__all'?STATE.all:STATE.all.filter(r=>r.cohort===STATE.cohort);}
 function rangeKeys(){const f=STATE.from?+STATE.from.replaceAll('-',''):null;const t=STATE.to?+STATE.to.replaceAll('-',''):null;return [f,t];}
-function inRange(r){const [f,t]=rangeKeys();if(!r.fs)return false;if(f&&r.fs.key<f)return false;if(t&&r.fs.key>t)return false;return true;}
+function inRange(r){const [f,t]=rangeKeys();if(!r.at)return false;if(f&&r.at.key<f)return false;if(t&&r.at.key>t)return false;return true;}
 function rangeActive(){return !!(STATE.from||STATE.to);}
 
 const IC={
@@ -373,9 +377,9 @@ function secCourse(p){
   return sec('03','By course','Labs provisioned per course, with activation rate and compute hours.',`<div class="card">${body}</div>`);
 }
 function secTrend(p){
-  const act=p.filter(r=>r.fs&&(!rangeActive()||inRange(r)));
+  const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
   if(!act.length)return sec('04','Activation trend',rangeNote(),`<div class="card">${emptyEl('No first-seen activity in this selection.')}</div>`);
-  const days={}; act.forEach(r=>{days[r.fs.key]=(days[r.fs.key]||0)+1;});
+  const days={}; act.forEach(r=>{days[r.at.key]=(days[r.at.key]||0)+1;});
   const keys=Object.keys(days).map(Number).sort((a,b)=>a-b); const mid=keys[Math.floor(keys.length/2)];
   const early=sum(keys.filter(k=>k<mid),k=>days[k]),recent=sum(keys.filter(k=>k>=mid),k=>days[k]);
   const mv=recent>=early?`<span style="color:var(--good)">▲ rising</span>`:`<span style="color:var(--amber)">▼ cooling</span>`;
@@ -396,9 +400,9 @@ function secMulti(p){
   return sec('06','Multi-course learners','Learners enrolled across several labs — grouped by account.',`<div class="card">${body}</div>`);
 }
 function secRhythm(p){
-  const act=p.filter(r=>r.fs&&(!rangeActive()||inRange(r)));
+  const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
   if(!act.length)return sec('07','Time rhythm',rangeNote(),`<div class="card">${emptyEl('No activity timestamps in this selection.')}</div>`);
-  const hours=new Array(24).fill(0); act.forEach(r=>hours[r.fs.h]++);
+  const hours=new Array(24).fill(0); act.forEach(r=>hours[r.at.h]++);
   return sec('07','Time rhythm',TZ_NOTE,`<div class="card">${hourBars(hours)}<div class="legend">First connection by hour of day — staffing &amp; support timing.</div></div>`);
 }
 function secDist(p){
@@ -420,11 +424,11 @@ function secExplorer(p){
   return sec('10','Explorer','Sort, search, expand a row for the raw record. CSV export is full-value.',
     `<div class="card"><div class="exp-tools"><input id="expQ" placeholder="Search name, email, course, status…" value="${esc(EXP.q)}"><button class="dlbtn" id="expCsv">Export CSV (full values)</button></div><div class="tbl-wrap"><table id="expTbl"></table></div></div>`);
 }
-const EXP_COLS=[['userName','Learner',r=>esc(maskName(r.userName))],['user','Account',r=>`<span class="mono">${esc(maskEmail(r.user))}</span>`],['course','Course',r=>esc(r.course)],['cohort','Cohort',r=>esc(r.cohort)],['status','Status',r=>esc(r.status)],['ec2h','Compute h',r=>`<span class="num-cell">${r.ec2h.toFixed(2)}</span>`],['connh','Engaged h',r=>`<span class="num-cell">${r.connh==null?'—':r.connh.toFixed(2)}</span>`],['fs','First seen',r=>r.fs?fmtDT(r.fs):'<span style="color:var(--mute)">never</span>'],['band','Band',r=>`<span class="band ${r.band}">${BAND_INFO[r.band].label}</span>`]];
+const EXP_COLS=[['userName','Learner',r=>esc(maskName(r.userName))],['user','Account',r=>`<span class="mono">${esc(maskEmail(r.user))}</span>`],['course','Course',r=>esc(r.course)],['cohort','Cohort',r=>esc(r.cohort)],['status','Status',r=>esc(r.status)],['ec2h','Compute h',r=>`<span class="num-cell">${r.ec2h.toFixed(2)}</span>`],['connh','Engaged h',r=>`<span class="num-cell">${r.connh==null?'—':r.connh.toFixed(2)}</span>`],['fs','First activity',r=>r.at?fmtDT(r.at)+(r.atFromLS?' <span style="color:var(--mute)">(last seen)</span>':''):'<span style="color:var(--mute)">never</span>'],['band','Band',r=>`<span class="band ${r.band}">${BAND_INFO[r.band].label}</span>`]];
 function wireExplorer(pool){
   const draw=()=>{
     let rows=pool.filter(r=>{if(!EXP.q)return true;const q=EXP.q.toLowerCase();return (r.userName+' '+r.user+' '+r.course+' '+r.status+' '+r.cohort).toLowerCase().includes(q);});
-    rows.sort((a,b)=>{let av=a[EXP.sort],bv=b[EXP.sort];if(EXP.sort==='fs'){av=a.fs?a.fs.key*10000+a.fs.h*60+a.fs.mi:0;bv=b.fs?b.fs.key*10000+b.fs.h*60+b.fs.mi:0;}if(typeof av==='string')return EXP.dir*av.localeCompare(bv);return EXP.dir*((av||0)-(bv||0));});
+    rows.sort((a,b)=>{let av=a[EXP.sort],bv=b[EXP.sort];if(EXP.sort==='fs'){av=a.at?a.at.key*10000+a.at.h*60+a.at.mi:0;bv=b.at?b.at.key*10000+b.at.h*60+b.at.mi:0;}if(typeof av==='string')return EXP.dir*av.localeCompare(bv);return EXP.dir*((av||0)-(bv||0));});
     const head=`<thead><tr>${EXP_COLS.map(c=>`<th data-col="${c[0]}">${c[1]}${EXP.sort===c[0]?(EXP.dir<0?' ▾':' ▴'):''}</th>`).join('')}</tr></thead>`;
     const body=`<tbody>${rows.length?rows.map(r=>`<tr data-drill="rec:${r.i}">${EXP_COLS.map(c=>`<td>${c[2](r)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${EXP_COLS.length}"><div class="empty">No rows match.</div></td></tr>`}</tbody>`;
     $('#expTbl').innerHTML=head+body;
@@ -477,7 +481,7 @@ function openDrill(key){
   const {title,recs}=drillSet(key); DRILL=recs;
   $('#drTitle').textContent=title; $('#drSub').textContent=STATE.cohort==='__all'?'All cohorts':STATE.cohort;
   $('#drCount').textContent=recs.length+' record'+(recs.length===1?'':'s');
-  $('#drBody').innerHTML=recs.length?recs.map(r=>`<details class="dr-item" data-i="${r.i}"><summary><div><div class="nm">${esc(maskName(r.userName))} <span class="band ${r.band}" style="margin-left:6px">${BAND_INFO[r.band].label}</span></div><div class="meta">${esc(maskEmail(r.user))} · ${esc(r.course)}</div></div><div style="text-align:right"><div class="tag">${r.ec2h.toFixed(2)} h</div><div class="meta">${r.fs?fmtDT(r.fs):'never connected'}</div></div></summary><div class="dr-raw"></div></details>`).join(''):emptyEl();
+  $('#drBody').innerHTML=recs.length?recs.map(r=>`<details class="dr-item" data-i="${r.i}"><summary><div><div class="nm">${esc(maskName(r.userName))} <span class="band ${r.band}" style="margin-left:6px">${BAND_INFO[r.band].label}</span></div><div class="meta">${esc(maskEmail(r.user))} · ${esc(r.course)}</div></div><div style="text-align:right"><div class="tag">${r.ec2h.toFixed(2)} h</div><div class="meta">${r.at?fmtDT(r.at)+(r.atFromLS?' (last seen)':''):'never connected'}</div></div></summary><div class="dr-raw"></div></details>`).join(''):emptyEl();
   $('#scrim').classList.add('on'); $('#drawer').classList.add('on');
 }
 function lazyRaw(det){const box=det.querySelector('.dr-raw');if(!box||box.dataset.done)return;const r=STATE.all[+det.dataset.i];box.innerHTML=Object.entries(r.raw).map(([k,v])=>{let val=v;if(MASK_PII&&k==='User')val=maskEmail(v);if(MASK_PII&&k==='User Name')val=maskName(v);return `<div><span class="k">${esc(k)}</span><span>${esc(val||'—')}</span></div>`;}).join('');box.dataset.done='1';}
@@ -493,9 +497,10 @@ function exportCSV(recs,name){
 function methodology(){
   return `<details class="method"><summary>How these metrics are derived</summary><div class="body">
     <h4>One row = one provisioned lab</h4>Each record is a single learner enrolled in a single course (a provisioned EC2 lab instance).
-    <h4>Compute hours</h4><code>Hours Used</code> is the canonical compute figure — verified to equal <code>EC2 Total Time</code> exactly. It measures instance uptime (the cost driver), not necessarily active work.
+    <h4>Compute hours</h4><code>EC2 Total Time</code> (instance uptime — the cost driver) is parsed directly to hours and is the canonical compute figure. Durations beyond a day (<code>1 day, 9:15:18</code>) are parsed in full.
     <h4>Engaged hours &amp; idle</h4><code>Connection Time</code> is parsed for engaged time (always ≤ uptime, present only when a session occurred). Idle compute = uptime minus engaged time; for never-connected labs the entire uptime counts as idle. A heuristic for waste, not a billing figure.
-    <h4>Activation</h4>A lab is "connected" if a <code>First Seen</code> timestamp exists.
+    <h4>Activation</h4>A lab counts as activated if it has a <code>First Seen</code> <em>or</em> a <code>Last Seen</code> timestamp. Some labs record a last-seen without a first-seen; these clearly had a session, so they are treated as activated (marked "last seen" in the explorer) rather than as never-connected waste. Trend and rhythm use <code>First Seen</code> when present, otherwise <code>Last Seen</code>.
+    <h4>Cohort</h4>Derived from <code>Start Date</code>: months Jan–Jun → <code>H1 (Jan–Jun)</code>, Jul–Dec → <code>H2 (Jul–Dec)</code>, paired with the start year.
     <h4>Outcome bands</h4>Each lab falls into exactly one band by its strongest compute signal: Never connected · Trivial (&lt;6 min) · Light (&lt;1 h) · Active (1–6 h) · Power (≥6 h). Thresholds are editable constants.
     <h4>Timestamps</h4>${esc(TZ_NOTE)} Date integers (<code>Y×10000+M×100+D</code>) drive range filters; no <code>Date()</code>/UTC parsing is used. The date range filters the activity sections (trend, rhythm); the cohort selector filters everything. Never-connected labs have no activity date and are excluded from date-windowed views (shown as honest empty states).
     <h4>Privacy</h4>${MASK_PII?'Learner names are shown to the signed-in viewer; email addresses are masked on screen and in raw views. Full names and emails appear only in CSV exports you download. The app is password-gated and runs entirely in your browser — no server.':'Full learner identifiers are shown to the signed-in admin. The app is password-gated and browser-only.'}
