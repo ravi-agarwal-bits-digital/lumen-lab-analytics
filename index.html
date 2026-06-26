@@ -122,6 +122,8 @@ section.block{margin:34px 0;scroll-margin-top:20px}
 .split-bar{height:7px;border-radius:5px;overflow:hidden;display:flex;background:#F0EDE5;margin-top:6px}
 .split-bar .eng{background:var(--navy2)} .split-bar .idle{background:var(--brass)}
 .legend{display:flex;gap:16px;font-size:11.5px;color:var(--dim);margin-top:8px;flex-wrap:wrap}
+.takeaway{font-size:13.5px;color:var(--ink);background:var(--navy-soft);border-radius:9px;padding:11px 14px;margin-bottom:14px;line-height:1.55}
+.takeaway b{font-weight:600;color:var(--navy)}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
 text{font-family:var(--mono)}
 .empty{color:var(--mute);font-size:13px;padding:26px;text-align:center;border:0.5px dashed var(--line2);border-radius:10px;background:var(--paper)}
@@ -404,11 +406,26 @@ function secCourse(p){
 function secTrend(p){
   const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
   if(!act.length)return sec('04','Activation trend',rangeNote(),`<div class="card">${emptyEl('No activity in this selection.')}</div>`);
-  const days={}; act.forEach(r=>{days[r.at.key]=(days[r.at.key]||0)+1;});
-  const keys=Object.keys(days).map(Number).sort((a,b)=>a-b); const mid=keys[Math.floor(keys.length/2)];
-  const early=sum(keys.filter(k=>k<mid),k=>days[k]),recent=sum(keys.filter(k=>k>=mid),k=>days[k]);
-  const mv=recent>=early?`<span style="color:var(--good)">▲ rising</span>`:`<span style="color:var(--amber)">▼ cooling</span>`;
-  return sec('04','Activation trend',rangeNote(),`<div class="card">${lineChart(keys.map(k=>({k,v:days[k]})))}<div class="legend">First activations per day. Earlier half: <b class="mono">${early}</b> · recent half: <b class="mono">${recent}</b> &nbsp; ${mv}</div></div>`);
+  const wk={};
+  act.forEach(r=>{const o=Math.floor(Date.UTC(r.at.Y,r.at.M-1,r.at.D)/864e5);const w=Math.floor(o/7);if(!wk[w])wk[w]={n:0,minKey:r.at.key};wk[w].n++;if(r.at.key<wk[w].minKey)wk[w].minKey=r.at.key;});
+  const ws=Object.keys(wk).map(Number).sort((a,b)=>a-b);const first=ws[0],last=ws[ws.length-1];
+  const series=[];for(let w=first;w<=last;w++)series.push({w,n:wk[w]?wk[w].n:0,key:wk[w]?wk[w].minKey:null});
+  const peakN=Math.max(...series.map(s=>s.n));const peak=series.find(s=>s.n===peakN);
+  const take=`<div class="takeaway"><b>${act.length}</b> labs first activated across ${series.length} week${series.length===1?'':'s'} · busiest the week of <b>${fmtKey(peak.key)}</b> (<b>${peakN}</b> activations).</div>`;
+  return sec('04','Activation trend',rangeNote(),`<div class="card">${take}${weekBars(series,peakN)}<div class="legend">Each bar = labs first activated that week. Hover a bar for the exact count.</div></div>`);
+}
+function weekBars(series,maxV){
+  const W=720,H=196,padL=30,padB=28,padT=14,n=series.length;const slot=(W-padL-8)/n;const gap=Math.min(6,Math.max(1,slot*0.18));const bw=Math.max(2,slot-gap);
+  let lastMon='',bars='',labels='';
+  series.forEach((s,i)=>{const h=(H-padT-padB)*div(s.n,maxV);const x=padL+i*slot;const y=H-padB-h;const peak=maxV>0&&s.n===maxV;
+    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,s.n>0?2:0).toFixed(1)}" rx="2" fill="${peak?'var(--brass)':'var(--navy2)'}"><title>${s.key?'Week of '+fmtKey(s.key)+': ':''}${s.n} activation${s.n===1?'':'s'}</title></rect>`;
+    if(s.key){const mon=MN[Math.floor(s.key/100)%100];if(mon!==lastMon){labels+=`<text x="${x.toFixed(1)}" y="${H-9}" font-size="9.5" fill="var(--dim)" text-anchor="start">${mon}</text>`;lastMon=mon;}}});
+  const gy=padT+(H-padT-padB)*0;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:220px" role="img" aria-label="Weekly activations, peak ${maxV}"><title>Weekly activation trend</title>`+
+    `<line x1="${padL}" y1="${gy.toFixed(1)}" x2="${W-4}" y2="${gy.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`+
+    `<text x="${padL-4}" y="${(gy+3).toFixed(1)}" font-size="9" fill="var(--mute)" text-anchor="end">${maxV}</text>`+
+    `<line x1="${padL}" y1="${H-padB}" x2="${W-4}" y2="${H-padB}" stroke="var(--line2)" stroke-width="1"/>`+
+    bars+labels+`</svg>`;
 }
 function secLeader(p){
   const conn=[...p.filter(r=>r.connected)].sort((a,b)=>b.ec2h-a.ec2h).slice(0,15);
@@ -428,7 +445,25 @@ function secRhythm(p){
   const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
   if(!act.length)return sec('07','Time rhythm',rangeNote(),`<div class="card">${emptyEl('No activity timestamps in this selection.')}</div>`);
   const hours=new Array(24).fill(0); act.forEach(r=>hours[r.at.h]++);
-  return sec('07','Time rhythm',TZ_NOTE,`<div class="card">${hourBars(hours)}<div class="legend">First connection by hour of day — staffing &amp; support timing.</div></div>`);
+  const parts=[['night','overnight (12–6 AM)',0,5],['morning','the morning (6 AM–12 PM)',6,11],['afternoon','the afternoon (12–6 PM)',12,17],['evening','the evening (6 PM–12 AM)',18,23]];
+  const partSum=parts.map(([k,lbl,a,b])=>({lbl,n:sum(hours.slice(a,b+1))})).sort((x,y)=>y.n-x.n);
+  const top=partSum[0]; const peakH=hours.indexOf(Math.max(...hours));
+  const h12=(h)=>{const ap=h<12?'AM':'PM';let hh=h%12;if(hh===0)hh=12;return hh+' '+ap;};
+  const take=`<div class="takeaway">Most labs are first opened during <b>${top.lbl}</b> (<b>${(div(top.n,act.length)*100).toFixed(0)}%</b>), peaking around <b>${h12(peakH)}</b>.</div>`;
+  return sec('07','Time rhythm',TZ_NOTE,`<div class="card">${take}${hourBars(hours)}<div class="legend">First connection by hour of day — useful for staffing &amp; support timing. Hover a bar for the count.</div></div>`);
+}
+function hourBars(hours){
+  const W=720,H=180,padL=26,padB=30,padT=12,n=24;const max=Math.max(1,...hours);const slot=(W-padL-6)/n;const bw=slot-4;
+  const h12=(h)=>{const ap=h<12?'a':'p';let hh=h%12;if(hh===0)hh=12;return hh+ap;};
+  let bars='';
+  for(let i=0;i<24;i++){const v=hours[i];const h=(H-padT-padB)*div(v,max);const x=padL+i*slot;const y=H-padB-h;const ap=i<12?'AM':'PM';let hh=i%12;if(hh===0)hh=12;
+    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(h,v>0?2:0).toFixed(1)}" rx="2" fill="${v===max?'var(--brass)':'var(--navy2)'}"><title>${hh} ${ap}: ${v} first connection${v===1?'':'s'}</title></rect>`;
+    if(i%3===0)bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-9}" font-size="9.5" fill="var(--dim)" text-anchor="middle">${h12(i)}</text>`;}
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:200px" role="img" aria-label="First connections by hour of day"><title>Activity by hour of day</title>`+
+    `<line x1="${padL}" y1="${padT}" x2="${W-4}" y2="${padT}" stroke="var(--line)" stroke-width="1"/>`+
+    `<text x="${padL-4}" y="${padT+3}" font-size="9" fill="var(--mute)" text-anchor="end">${max}</text>`+
+    `<line x1="${padL}" y1="${H-padB}" x2="${W-4}" y2="${H-padB}" stroke="var(--line2)" stroke-width="1"/>`+
+    bars+`</svg>`;
 }
 function secDist(p){
   const buckets=[['0 (never used)',r=>r.ec2h===0,'hist:0'],['<6 min',r=>r.ec2h>0&&r.ec2h<0.1,'hist:t'],['6 min–1 h',r=>r.ec2h>=0.1&&r.ec2h<1,'hist:l'],['1–3 h',r=>r.ec2h>=1&&r.ec2h<3,'hist:a1'],['3–6 h',r=>r.ec2h>=3&&r.ec2h<6,'hist:a2'],['6–12 h',r=>r.ec2h>=6&&r.ec2h<12,'hist:p1'],['12 h+',r=>r.ec2h>=12,'hist:p2']];
@@ -467,20 +502,6 @@ function wireExplorer(pool){
   $('#expCsv').onclick=()=>exportCSV(shown,'cohort-explorer');
 }
 
-function lineChart(pts){
-  const W=720,H=180,pad=30; if(!pts.length)return emptyEl();
-  const maxV=Math.max(...pts.map(p=>p.v));
-  const x=i=>pad+(pts.length<2?0:(W-2*pad)*i/(pts.length-1));
-  const y=v=>H-pad-(H-2*pad)*div(v,maxV);
-  const d=pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
-  const area=`${d} L${x(pts.length-1).toFixed(1)} ${H-pad} L${x(0).toFixed(1)} ${H-pad} Z`;
-  const ticks=pts.filter((_,i)=>i%Math.ceil(pts.length/6)===0);
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:210px" role="img" aria-label="Activations per day, peak ${maxV} per day"><title>Activations per day</title><path d="${area}" fill="var(--navy-soft)"/><path d="${d}" fill="none" stroke="var(--navy2)" stroke-width="2"/>${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.4" fill="var(--navy)"/>`).join('')}${ticks.map(p=>{const i=pts.indexOf(p);return `<text x="${x(i).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${fmtKey(p.k).replace(/, \d+$/,'')}</text>`;}).join('')}<text x="${pad}" y="15" font-size="9" fill="var(--mute)">peak ${maxV}/day</text></svg>`;
-}
-function hourBars(hours){
-  const W=720,H=170,pad=26,n=24,gap=4; const max=Math.max(1,...hours); const bw=(W-2*pad)/n-gap;
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:200px" role="img" aria-label="First connections by hour of day"><title>Activity by hour of day</title>${hours.map((v,i)=>{const h=(H-2*pad)*div(v,max);const x=pad+i*((W-2*pad)/n);const y=H-pad-h;return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${v===max?'var(--brass)':'var(--navy2)'}"/>`+(i%3===0?`<text x="${(x+bw/2).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${i}</text>`:'');}).join('')}</svg>`;
-}
 function sec(num,title,note,inner){return `<section class="block" id="sec-${num}"><div class="sec-head"><span class="num">${num}</span><h2>${esc(title)}</h2>${note?`<span class="note">${esc(note)}</span>`:''}</div>${inner}</section>`;}
 function emptyEl(msg){return `<div class="empty">${esc(msg||'No data for this selection.')}</div>`;}
 function rangeNote(){return rangeActive()?`Activity ${STATE.from||'…'} → ${STATE.to||'…'}`:TZ_NOTE;}
