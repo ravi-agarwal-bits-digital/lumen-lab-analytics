@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#FBFAF7; --card:#FFFFFF; --ink:#1E2733; --dim:#626A75; --mute:#9AA0A8;
+  --paper:#FBFAF7; --card:#FFFFFF; --ink:#1E2733; --dim:#626A75; --mute:#6E747D;
   --line:#EAE6DC; --line2:#DED9CC;
   --navy:#1B2A4A; --navy2:#2C4373; --navy-soft:#EEF1F7; --navy-ink:#0F1B33;
   --brass:#A8762E; --brass-soft:#F6EFE2; --brass-line:#E7D6B5;
@@ -191,6 +191,16 @@ footer{margin-top:28px;color:var(--mute);font-size:11px;font-family:var(--mono)}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 [data-drill]:focus-visible,[data-go]:focus-visible,button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:6px}
+@media print{
+  .rail,#scrim,#drawer,.controls,.kpi .arrow,details.method summary{display:none!important}
+  .layout{display:block} .main{max-width:none;padding:0}
+  .card,.kpi{break-inside:avoid;box-shadow:none}
+  .kpi:hover,.bar-row:hover,.lead-row:hover{background:none;transform:none}
+  section.block{break-inside:avoid;margin:18px 0}
+  details.method[open] .body{display:block}
+  body{background:#fff}
+  .tophead{border-color:#ccc}
+}
 </style>
 </head>
 <body>
@@ -209,8 +219,8 @@ footer{margin-top:28px;color:var(--mute);font-size:11px;font-family:var(--mono)}
 <div id="app"></div>
 
 <div id="scrim"></div>
-<aside id="drawer">
-  <div class="dr-head"><div style="flex:1"><h3 id="drTitle">—</h3><div class="dr-sub" id="drSub"></div></div><button class="x" id="drClose">×</button></div>
+<aside id="drawer" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+  <div class="dr-head"><div style="flex:1"><h3 id="drTitle">—</h3><div class="dr-sub" id="drSub"></div></div><button class="x" id="drClose" aria-label="Close panel">×</button></div>
   <div class="dr-tools"><button class="dlbtn" id="drCsv">Export CSV (full values)</button><span class="dr-sub" id="drCount"></span></div>
   <div class="dr-body" id="drBody"></div>
 </aside>
@@ -309,6 +319,7 @@ function warnIcon(){return `<svg width="13" height="13" viewBox="0 0 24 24" fill
 const NAV=[['01','Overview','dash'],['02','Activation funnel','funnel'],['03','By course','books'],['04','Trend','trend'],['05','Heaviest compute','flame'],['06','Multi-course','users'],['07','Time rhythm','clock'],['08','Distribution','hist'],['09','Outcomes','target'],['10','Explorer','table']];
 
 const $=s=>document.querySelector(s);
+function latestActivity(p){let m=0;p.forEach(r=>{if(r.at&&r.at.key>m)m=r.at.key;});return m;}
 function render(){
   const pool=cohortPool();
   const cohorts=[...new Set(STATE.all.map(r=>r.cohort))].sort((a,b)=>(STATE.all.find(r=>r.cohort===a).cohortKey)-(STATE.all.find(r=>r.cohort===b).cohortKey));
@@ -326,14 +337,12 @@ function render(){
           <div>
             <div class="kicker">Cohort lab usage</div>
             <h1>Overview</h1>
-            <div class="sub">${pool.length} provisioned labs · ${uniq(pool,r=>r.user)} learners · ${uniq(pool,r=>r.base)} courses${minStart?' · since '+fmtKey(minStart):''}</div>
+            <div class="sub">${pool.length} provisioned labs · ${uniq(pool,r=>r.user)} learners · ${uniq(pool,r=>r.base)} courses${minStart?' · since '+fmtKey(minStart):''}${latestActivity(pool)?' · data through '+fmtKey(latestActivity(pool)):''}</div>
           </div>
           <div class="controls">
             <div class="grp"><label>Term (cohort)</label><select id="fCohort"><option value="__all">All terms</option>${cohorts.map(c=>`<option value="${esc(c)}" ${c===STATE.cohort?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
             <div class="grp"><label>Course</label><select id="fCourse"><option value="__all">All courses</option>${courses.map(c=>`<option value="${esc(c)}" ${c===STATE.course?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
-            <div class="grp"><label>Activity from</label><input type="date" id="fFrom" value="${STATE.from}"></div>
-            <div class="grp"><label>to</label><input type="date" id="fTo" value="${STATE.to}"></div>
-            <div class="grp"><button class="btn-ghost" id="fClear">Clear dates</button></div>
+            <div class="grp"><label>Activity window <span style="text-transform:none;letter-spacing:0;color:var(--mute)">· trend &amp; rhythm only</span></label><div style="display:flex;gap:6px;align-items:center"><input type="date" id="fFrom" value="${STATE.from}" aria-label="Activity window from"><span style="color:var(--mute)">→</span><input type="date" id="fTo" value="${STATE.to}" aria-label="Activity window to"><button class="btn-ghost" id="fClear">Clear</button></div></div>
           </div>
         </div>
         ${actBand(pool)}
@@ -394,7 +403,7 @@ function secCourse(p){
 }
 function secTrend(p){
   const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
-  if(!act.length)return sec('04','Activation trend',rangeNote(),`<div class="card">${emptyEl('No first-seen activity in this selection.')}</div>`);
+  if(!act.length)return sec('04','Activation trend',rangeNote(),`<div class="card">${emptyEl('No activity in this selection.')}</div>`);
   const days={}; act.forEach(r=>{days[r.at.key]=(days[r.at.key]||0)+1;});
   const keys=Object.keys(days).map(Number).sort((a,b)=>a-b); const mid=keys[Math.floor(keys.length/2)];
   const early=sum(keys.filter(k=>k<mid),k=>days[k]),recent=sum(keys.filter(k=>k>=mid),k=>days[k]);
@@ -442,9 +451,11 @@ function secExplorer(p){
 }
 const EXP_COLS=[['userName','Learner',r=>esc(maskName(r.userName))],['user','Account',r=>`<span class="mono">${esc(maskEmail(r.user))}</span>`],['course','Course',r=>esc(r.course)],['cohort','Cohort',r=>esc(r.cohort)],['status','Status',r=>esc(r.status)],['ec2h','Compute h',r=>`<span class="num-cell">${r.ec2h.toFixed(2)}</span>`],['connh','Engaged h',r=>`<span class="num-cell">${r.connh==null?'—':r.connh.toFixed(2)}</span>`],['fs','First activity',r=>r.at?fmtDT(r.at)+(r.atFromLS?' <span style="color:var(--mute)">(last seen)</span>':''):'<span style="color:var(--mute)">never</span>'],['band','Band',r=>`<span class="band ${r.band}">${BAND_INFO[r.band].label}</span>`]];
 function wireExplorer(pool){
+  let shown=pool;
   const draw=()=>{
     let rows=pool.filter(r=>{if(!EXP.q)return true;const q=EXP.q.toLowerCase();return (r.userName+' '+r.user+' '+r.course+' '+r.status+' '+r.cohort).toLowerCase().includes(q);});
     rows.sort((a,b)=>{let av=a[EXP.sort],bv=b[EXP.sort];if(EXP.sort==='fs'){av=a.at?a.at.key*10000+a.at.h*60+a.at.mi:0;bv=b.at?b.at.key*10000+b.at.h*60+b.at.mi:0;}if(typeof av==='string')return EXP.dir*av.localeCompare(bv);return EXP.dir*((av||0)-(bv||0));});
+    shown=rows;
     const head=`<thead><tr>${EXP_COLS.map(c=>`<th data-col="${c[0]}">${c[1]}${EXP.sort===c[0]?(EXP.dir<0?' ▾':' ▴'):''}</th>`).join('')}</tr></thead>`;
     const body=`<tbody>${rows.length?rows.map(r=>`<tr data-drill="rec:${r.i}">${EXP_COLS.map(c=>`<td>${c[2](r)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${EXP_COLS.length}"><div class="empty">No rows match.</div></td></tr>`}</tbody>`;
     $('#expTbl').innerHTML=head+body;
@@ -453,7 +464,7 @@ function wireExplorer(pool){
   };
   draw();
   $('#expQ').oninput=e=>{EXP.q=e.target.value;draw();};
-  $('#expCsv').onclick=()=>exportCSV(pool,'cohort-explorer');
+  $('#expCsv').onclick=()=>exportCSV(shown,'cohort-explorer');
 }
 
 function lineChart(pts){
@@ -464,11 +475,11 @@ function lineChart(pts){
   const d=pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
   const area=`${d} L${x(pts.length-1).toFixed(1)} ${H-pad} L${x(0).toFixed(1)} ${H-pad} Z`;
   const ticks=pts.filter((_,i)=>i%Math.ceil(pts.length/6)===0);
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:210px"><path d="${area}" fill="var(--navy-soft)"/><path d="${d}" fill="none" stroke="var(--navy2)" stroke-width="2"/>${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.4" fill="var(--navy)"/>`).join('')}${ticks.map(p=>{const i=pts.indexOf(p);return `<text x="${x(i).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${fmtKey(p.k).replace(/, \d+$/,'')}</text>`;}).join('')}<text x="${pad}" y="15" font-size="9" fill="var(--mute)">peak ${maxV}/day</text></svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:210px" role="img" aria-label="Activations per day, peak ${maxV} per day"><title>Activations per day</title><path d="${area}" fill="var(--navy-soft)"/><path d="${d}" fill="none" stroke="var(--navy2)" stroke-width="2"/>${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.4" fill="var(--navy)"/>`).join('')}${ticks.map(p=>{const i=pts.indexOf(p);return `<text x="${x(i).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${fmtKey(p.k).replace(/, \d+$/,'')}</text>`;}).join('')}<text x="${pad}" y="15" font-size="9" fill="var(--mute)">peak ${maxV}/day</text></svg>`;
 }
 function hourBars(hours){
   const W=720,H=170,pad=26,n=24,gap=4; const max=Math.max(1,...hours); const bw=(W-2*pad)/n-gap;
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:200px">${hours.map((v,i)=>{const h=(H-2*pad)*div(v,max);const x=pad+i*((W-2*pad)/n);const y=H-pad-h;return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${v===max?'var(--brass)':'var(--navy2)'}"/>`+(i%3===0?`<text x="${(x+bw/2).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${i}</text>`:'');}).join('')}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:200px" role="img" aria-label="First connections by hour of day"><title>Activity by hour of day</title>${hours.map((v,i)=>{const h=(H-2*pad)*div(v,max);const x=pad+i*((W-2*pad)/n);const y=H-pad-h;return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${v===max?'var(--brass)':'var(--navy2)'}"/>`+(i%3===0?`<text x="${(x+bw/2).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${i}</text>`:'');}).join('')}</svg>`;
 }
 function sec(num,title,note,inner){return `<section class="block" id="sec-${num}"><div class="sec-head"><span class="num">${num}</span><h2>${esc(title)}</h2>${note?`<span class="note">${esc(note)}</span>`:''}</div>${inner}</section>`;}
 function emptyEl(msg){return `<div class="empty">${esc(msg||'No data for this selection.')}</div>`;}
@@ -485,7 +496,7 @@ function setupNav(){
 
 function drillSet(key){
   const p=cohortPool();
-  const f={all:[()=>p,'All provisioned labs'],learners:[()=>p,'All labs (by learner)'],allhours:[()=>p,'All labs (compute hours)'],connected:[()=>p.filter(r=>r.connected),'Connected labs'],never:[()=>p.filter(r=>!r.connected),'Never-activated labs'],idle:[()=>p.filter(r=>r.idleh>0).sort((a,b)=>b.idleh-a.idleh),'Labs with idle compute'],used:[()=>p.filter(r=>r.ec2h>=T_USED),'Labs that used compute (>6 min)'],engaged:[()=>p.filter(r=>r.ec2h>=T_ENG),'Engaged labs (≥1 h)']};
+  const f={all:[()=>p,'All provisioned labs'],learners:[()=>{const seen=new Set();return p.filter(r=>seen.has(r.user)?false:(seen.add(r.user),true));},'Distinct learners (one lab each)'],allhours:[()=>[...p].sort((a,b)=>b.ec2h-a.ec2h),'All labs by compute hours'],connected:[()=>p.filter(r=>r.connected),'Connected labs'],never:[()=>p.filter(r=>!r.connected),'Never-activated labs'],idle:[()=>p.filter(r=>r.idleh>0).sort((a,b)=>b.idleh-a.idleh),'Labs with idle compute'],used:[()=>p.filter(r=>r.ec2h>=T_USED),'Labs that used compute (>6 min)'],engaged:[()=>p.filter(r=>r.ec2h>=T_ENG),'Engaged labs (≥1 h)']};
   if(f[key])return {title:f[key][1],recs:f[key][0]()};
   const [k,arg]=key.split(/:(.+)/);
   if(k==='course')return {title:'Course · '+arg,recs:p.filter(r=>r.base===arg)};
@@ -502,9 +513,11 @@ function openDrill(key){
   $('#drCount').textContent=recs.length+' record'+(recs.length===1?'':'s');
   $('#drBody').innerHTML=recs.length?recs.map(r=>`<details class="dr-item" data-i="${r.i}"><summary><div><div class="nm">${esc(maskName(r.userName))} <span class="band ${r.band}" style="margin-left:6px">${BAND_INFO[r.band].label}</span></div><div class="meta">${esc(maskEmail(r.user))} · ${esc(r.course)}</div></div><div style="text-align:right"><div class="tag">${r.ec2h.toFixed(2)} h</div><div class="meta">${r.at?fmtDT(r.at)+(r.atFromLS?' (last seen)':''):'never connected'}</div></div></summary><div class="dr-raw"></div></details>`).join(''):emptyEl();
   $('#scrim').classList.add('on'); $('#drawer').classList.add('on');
+  DRILL_RETURN=document.activeElement; const c=$('#drClose'); if(c&&c.focus)try{c.focus();}catch(e){}
 }
+let DRILL_RETURN=null;
 function lazyRaw(det){const box=det.querySelector('.dr-raw');if(!box||box.dataset.done)return;const r=STATE.all[+det.dataset.i];box.innerHTML=Object.entries(r.raw).map(([k,v])=>{let val=v;if(MASK_PII&&k==='User')val=maskEmail(v);if(MASK_PII&&k==='User Name')val=maskName(v);return `<div><span class="k">${esc(k)}</span><span>${esc(val||'—')}</span></div>`;}).join('');box.dataset.done='1';}
-function closeDrill(){$('#scrim').classList.remove('on');$('#drawer').classList.remove('on');}
+function closeDrill(){$('#scrim').classList.remove('on');$('#drawer').classList.remove('on');if(DRILL_RETURN&&DRILL_RETURN.focus)try{DRILL_RETURN.focus();}catch(e){}}
 
 function exportCSV(recs,name){
   if(!recs.length)return; const cols=Object.keys(recs[0].raw);
