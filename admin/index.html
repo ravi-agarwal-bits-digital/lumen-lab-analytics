@@ -108,7 +108,7 @@ const REQUIRED_COLS = ['User','Course','Status','Start Date','EC2 Total Time','F
 const MAGIC='AANYAENC1'; const te=new TextEncoder();
 async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',te.encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 async function deriveKey(pw,salt){const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
-  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt']);}
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:600000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt']);}
 async function encrypt(text,pw){
   const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
   const key=await deriveKey(pw,salt);
@@ -173,7 +173,7 @@ $('#go').onclick=async()=>{
   $('#go').disabled=true; $('#log').innerHTML='';
   if($('#remember').checked) sessionStorage.setItem(TKEY,token()); else sessionStorage.removeItem(TKEY);
   try{
-    logln('Encrypting (AES-256-GCM, PBKDF2 150k)…');
+    logln('Encrypting (AES-256-GCM, PBKDF2 600k)…');
     const enc=await encrypt(CSV_TEXT,PW); const b64=toB64(enc);
     logln(`  ✓ ${enc.length.toLocaleString()} bytes ciphertext <span class="pill">magic ${MAGIC}</span>`,'ok');
     const d=new Date(); const dated=`${DATA_FILE_PREFIX}_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.csv`;
