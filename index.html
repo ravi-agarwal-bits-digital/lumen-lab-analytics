@@ -4,184 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Cohort Lab Usage — BITS Pilani Digital</title>
+<title>Admin · Lumen Lab Uploader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#FBFAF7; --card:#FFFFFF; --ink:#1E2733; --dim:#626A75; --mute:#9AA0A8;
-  --line:#EAE6DC; --line2:#DED9CC;
-  --navy:#1B2A4A; --navy2:#2C4373; --navy-soft:#EEF1F7; --navy-ink:#0F1B33;
-  --brass:#A8762E; --brass-soft:#F6EFE2; --brass-line:#E7D6B5;
-  --good:#4F7A52; --good-soft:#EAF1E7; --amber:#9A6B1F;
-  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
-  --r:11px; --rl:13px;
-}
+:root{--paper:#FBFAF7;--card:#FFFFFF;--ink:#1E2733;--dim:#626A75;--mute:#9AA0A8;--line:#EAE6DC;--line2:#DED9CC;
+  --navy:#1B2A4A;--navy2:#2C4373;--navy-soft:#EEF1F7;--navy-ink:#0F1B33;--brass:#A8762E;--brass-soft:#F6EFE2;--brass-line:#E7D6B5;
+  --good:#4F7A52;--amber:#9A6B1F;--serif:'Fraunces',Georgia,serif;--sans:'Inter',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;margin:0;color:var(--ink)}
-button{font-family:inherit;cursor:pointer}
-.mono{font-family:var(--mono)}
-.serif{font-family:var(--serif)}
-::selection{background:var(--navy-soft)}
-::-webkit-scrollbar{width:9px;height:9px}
-::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
-::-webkit-scrollbar-track{background:transparent}
-
-#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--paper);z-index:80}
-#gate .card{width:min(420px,92vw);background:var(--card);border:0.5px solid var(--line2);border-radius:var(--rl);padding:36px 32px;box-shadow:0 18px 50px -28px rgba(27,42,74,.4)}
-#gate .kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:10px}
-#gate h1{font-size:25px;margin-bottom:6px}
-#gate p{color:var(--dim);margin:0 0 22px;font-size:13px}
-#gate input{width:100%;padding:12px 14px;background:var(--paper);border:0.5px solid var(--line2);border-radius:9px;color:var(--ink);font-family:var(--mono);font-size:14px;margin-bottom:12px}
-#gate input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-soft)}
-#gate button{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-weight:500;font-size:14px}
-#gate button:hover{background:var(--navy-ink)}
-#gate .err{color:var(--brass);font-size:12.5px;min-height:18px;margin-top:6px}
-
-#app{display:none}
-.layout{display:flex;min-height:100vh}
-.rail{width:212px;flex:none;background:var(--navy);color:#C9D2E2;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 0}
-.rail .brand{padding:0 20px 18px;border-bottom:0.5px solid rgba(255,255,255,.12);margin-bottom:8px}
-.rail .brand .n{font-family:var(--serif);font-size:18px;color:#fff;font-weight:500}
-.rail .brand small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#7E8CA8;margin-top:5px}
-.rail nav{overflow:auto;flex:1}
-.rail a{display:flex;gap:10px;align-items:center;padding:8px 20px;font-size:12.5px;color:#A9B4C9;text-decoration:none;border-left:2px solid transparent;cursor:pointer}
-.rail a:hover{color:#fff}
-.rail a .num{font-size:10px;color:#6E7C99;width:14px;font-family:var(--mono)}
-.rail a svg{width:15px;height:15px;flex:none;opacity:.85}
-.rail a.on{color:#fff;background:rgba(255,255,255,.06);border-left-color:var(--brass)}
-.rail .foot{padding:14px 20px 0;font-size:10px;color:#6E7C99;font-family:var(--mono);border-top:0.5px solid rgba(255,255,255,.1)}
-.rail .foot button{background:none;border:0.5px solid rgba(255,255,255,.18);color:#A9B4C9;border-radius:7px;padding:6px 10px;font-size:11px;width:100%;margin-bottom:8px}
-.rail .foot button:hover{color:#fff;border-color:rgba(255,255,255,.4)}
-
-.main{flex:1;max-width:1040px;padding:30px 40px 90px;min-width:0}
-.tophead{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;border-bottom:0.5px solid var(--line);padding-bottom:18px;margin-bottom:6px}
-.tophead .kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:6px}
-.tophead h1{font-size:30px;line-height:1.05}
-.tophead .sub{color:var(--dim);font-size:13px;margin-top:7px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.controls .grp{display:flex;flex-direction:column}
-.controls label{font-size:10px;color:var(--mute);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.controls select,.controls input[type=date]{background:var(--card);border:0.5px solid var(--line2);color:var(--ink);border-radius:8px;padding:8px 10px;font-family:var(--sans);font-size:13px}
-.controls select:focus,.controls input:focus{outline:none;border-color:var(--navy)}
-.btn-ghost{background:var(--card);border:0.5px solid var(--line2);color:var(--dim);border-radius:8px;padding:8px 12px;font-size:12.5px}
-.btn-ghost:hover{color:var(--ink);border-color:var(--navy)}
-
-.actband{display:flex;gap:13px;background:var(--brass-soft);border:0.5px solid var(--brass-line);border-radius:var(--rl);padding:15px 18px;margin:22px 0 8px}
-.actband svg{width:20px;height:20px;color:var(--brass);flex:none;margin-top:2px}
-.actband .t{font-size:13.5px;line-height:1.6;color:#5b4a2b}
-.actband b{font-weight:600;color:#4a3c20}
-
-section.block{margin:34px 0;scroll-margin-top:20px}
-.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:15px}
-.sec-head .num{font-family:var(--mono);font-size:11px;color:var(--brass);letter-spacing:.1em;padding-top:4px}
-.sec-head h2{font-size:21px}
-.sec-head .note{color:var(--mute);font-size:12px;margin-left:auto;max-width:46%;text-align:right}
-
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:13px}
-.kpi{background:var(--card);border:0.5px solid var(--line);border-radius:var(--r);padding:15px 16px;cursor:pointer;transition:border-color .15s,transform .15s;position:relative}
-.kpi:hover{border-color:var(--navy);transform:translateY(-2px)}
-.kpi .lbl{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
-.kpi .val{font-family:var(--serif);font-size:30px;font-weight:500;margin-top:8px;line-height:1;color:var(--navy)}
-.kpi .cap{font-size:11px;color:var(--mute);margin-top:7px}
-.kpi.problem{background:var(--brass-soft);border-color:var(--brass-line)}
-.kpi.problem .val{color:var(--brass)}
-.kpi.problem:hover{border-color:var(--brass)}
-.kpi .arrow{position:absolute;top:14px;right:14px;color:var(--mute);opacity:0;transition:opacity .15s}
-.kpi:hover .arrow{opacity:1}
-
-.card{background:var(--card);border:0.5px solid var(--line);border-radius:var(--rl);padding:20px 22px}
-.bar-row{display:grid;grid-template-columns:210px 1fr auto;gap:13px;align-items:center;padding:7px 0;cursor:pointer;border-radius:8px}
-.bar-row:hover{background:var(--paper)}
-.bar-row .name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
-.bar-track{background:#F0EDE5;border-radius:6px;height:20px;overflow:hidden}
-.bar-fill{height:100%;background:var(--navy2);border-radius:6px}
-.bar-val{font-family:var(--mono);font-size:12px;color:var(--dim);min-width:70px;text-align:right}
-.funnel-stage{cursor:pointer;border-radius:8px;padding:3px}
-.funnel-stage:hover{background:var(--paper)}
-.leak{display:flex;align-items:center;gap:7px;color:var(--brass);font-size:12px;font-family:var(--mono);margin:1px 0 1px 10px}
-.lead-row{display:grid;grid-template-columns:28px 1fr 116px auto;gap:12px;align-items:center;padding:9px 4px;border-radius:8px;cursor:pointer;border-bottom:0.5px solid var(--line)}
-.lead-row:hover{background:var(--paper)}
-.lead-row .rank{font-family:var(--mono);color:var(--brass);font-size:12px}
-.lead-row .who{overflow:hidden}
-.lead-row .who .n{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
-.lead-row .who .e{font-size:11px;color:var(--mute);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.lead-row .hh{font-family:var(--serif);font-size:15px;color:var(--ink);text-align:right}
-.band{font-size:10px;font-family:var(--sans);padding:2px 9px;border-radius:20px;letter-spacing:.02em;white-space:nowrap;font-weight:500}
-.band.power{background:var(--navy-soft);color:var(--navy)}
-.band.active{background:var(--good-soft);color:var(--good)}
-.band.light{background:#F1EFE8;color:#6F6A5E}
-.band.trivial{background:#F6EEDD;color:var(--amber)}
-.band.never{background:var(--brass-soft);color:var(--brass)}
-.split-bar{height:7px;border-radius:5px;overflow:hidden;display:flex;background:#F0EDE5;margin-top:6px}
-.split-bar .eng{background:var(--navy2)} .split-bar .idle{background:var(--brass)}
-.legend{display:flex;gap:16px;font-size:11.5px;color:var(--dim);margin-top:8px;flex-wrap:wrap}
-.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
-text{font-family:var(--mono)}
-.empty{color:var(--mute);font-size:13px;padding:26px;text-align:center;border:0.5px dashed var(--line2);border-radius:10px;background:var(--paper)}
-
-.exp-tools{display:flex;gap:10px;margin-bottom:13px;flex-wrap:wrap}
-.exp-tools input{flex:1;min-width:200px;background:var(--paper);border:0.5px solid var(--line2);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:13px}
-.exp-tools input:focus{outline:none;border-color:var(--navy)}
-.tbl-wrap{max-height:460px;overflow:auto;border:0.5px solid var(--line);border-radius:11px}
-table{border-collapse:collapse;width:100%;font-size:12.5px}
-thead th{position:sticky;top:0;background:#F6F3EC;text-align:left;padding:11px 13px;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.02em;color:var(--dim);cursor:pointer;white-space:nowrap;border-bottom:0.5px solid var(--line2);z-index:2}
-thead th:hover{color:var(--navy)}
-tbody td{padding:9px 13px;border-bottom:0.5px solid var(--line);white-space:nowrap}
-tbody tr{cursor:pointer} tbody tr:hover{background:var(--paper)}
-.num-cell{font-family:var(--mono);text-align:right}
-
-#scrim{position:fixed;inset:0;background:rgba(27,42,74,.32);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:90}
-#scrim.on{opacity:1;pointer-events:auto}
-#drawer{position:fixed;top:0;right:0;height:100%;width:min(560px,96vw);background:var(--card);border-left:0.5px solid var(--line2);transform:translateX(100%);transition:transform .24s cubic-bezier(.4,0,.2,1);z-index:91;display:flex;flex-direction:column;box-shadow:-24px 0 60px -30px rgba(27,42,74,.4)}
-#drawer.on{transform:translateX(0)}
-.dr-head{padding:20px 22px;border-bottom:0.5px solid var(--line);display:flex;align-items:flex-start;gap:12px}
-.dr-head h3{font-size:18px;flex:1}
-.dr-head .x{background:var(--paper);border:0.5px solid var(--line2);color:var(--dim);border-radius:8px;width:32px;height:32px;font-size:16px;line-height:1}
-.dr-head .x:hover{color:var(--ink)}
-.dr-sub{font-size:12px;color:var(--mute);font-family:var(--mono);margin-top:4px}
-.dr-tools{padding:12px 22px;border-bottom:0.5px solid var(--line);display:flex;gap:10px;align-items:center}
-.dr-body{overflow:auto;flex:1;padding:6px 16px 30px}
-.dr-item{border:0.5px solid var(--line);border-radius:10px;margin:9px 0;overflow:hidden}
-.dr-item summary{padding:11px 14px;cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.dr-item summary::-webkit-details-marker{display:none}
-.dr-item summary:hover{background:var(--paper)}
-.dr-item .nm{font-size:13px}
-.dr-item .meta{font-size:11px;color:var(--mute);font-family:var(--mono);margin-top:3px}
-.dr-item .tag{font-family:var(--serif);font-size:14px;color:var(--navy)}
-.dr-raw{padding:0 14px 12px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
-.dr-raw div{display:grid;grid-template-columns:135px 1fr;gap:8px;padding:4px 0;border-top:0.5px solid var(--line)}
-.dr-raw .k{color:var(--mute)}
-.dlbtn{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px 13px;font-size:12.5px;font-weight:500}
-.dlbtn:hover{background:var(--navy-ink)}
-
-details.method{margin-top:46px;border-top:0.5px solid var(--line);padding-top:18px}
-details.method summary{cursor:pointer;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-details.method summary:hover{color:var(--navy)}
-details.method .body{font-size:13px;color:var(--dim);max-width:780px;margin-top:14px}
-details.method h4{font-family:var(--serif);font-size:14px;color:var(--ink);margin:16px 0 4px;font-weight:500}
-details.method code{font-family:var(--mono);background:var(--navy-soft);padding:1px 5px;border-radius:4px;font-size:12px;color:var(--navy)}
-footer{margin-top:28px;color:var(--mute);font-size:11px;font-family:var(--mono)}
-
-.hamb{display:none}
-@media(max-width:900px){
-  .layout{flex-direction:column}
-  .rail{width:100%;height:auto;position:sticky;top:0;flex-direction:row;align-items:center;padding:10px 14px;z-index:40;overflow:visible}
-  .rail .brand{border:0;margin:0;padding:0 14px 0 0}
-  .rail .brand small{display:none}
-  .rail nav{display:flex;overflow-x:auto;gap:2px}
-  .rail a{padding:7px 11px;border-left:0;border-bottom:2px solid transparent;white-space:nowrap}
-  .rail a.on{border-left:0;border-bottom-color:var(--brass);background:transparent}
-  .rail a svg,.rail a .num{display:none}
-  .rail .foot{display:none}
-  .main{padding:22px 18px 80px}
-  .tophead h1{font-size:24px}
-  .sec-head .note{display:none}
-  .bar-row{grid-template-columns:120px 1fr auto}
-}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+h1,h2{font-family:var(--serif);font-weight:500;margin:0;color:var(--ink)}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass)}
+.wrap{max-width:660px;margin:0 auto;padding:42px 24px 80px}
+.card{background:var(--card);border:0.5px solid var(--line2);border-radius:13px;padding:26px;box-shadow:0 14px 40px -28px rgba(27,42,74,.35);margin-bottom:18px}
+label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:14px 0 6px}
+input[type=text],input[type=password]{width:100%;padding:11px 13px;background:var(--paper);border:0.5px solid var(--line2);border-radius:9px;color:var(--ink);font-family:var(--mono);font-size:13px}
+input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--navy-soft)}
+input[type=file]{width:100%;color:var(--dim);font-size:13px;margin-top:6px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;font-weight:500}
+.primary{background:var(--navy);color:#fff;padding:12px 16px;font-size:14px;width:100%}
+.primary:hover{background:var(--navy-ink)} .primary:disabled{opacity:.4;cursor:not-allowed}
+.ghost{background:var(--paper);border:0.5px solid var(--line2);color:var(--dim);padding:8px 12px;font-size:12.5px}
+.ghost:hover{color:var(--ink);border-color:var(--navy)}
+.row{display:flex;gap:10px;align-items:center}
+.muted{color:var(--dim);font-size:12.5px}
+.err{color:var(--brass)} .ok{color:var(--good)} .warn{color:var(--amber)}
+#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--paper);z-index:30}
+#gate .card{width:min(400px,92vw)}
+h1{font-size:24px;margin:8px 0 2px} h2{font-size:16px;margin-bottom:10px}
+.log{font-family:var(--mono);font-size:12px;background:var(--paper);border:0.5px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;max-height:240px;overflow:auto;white-space:pre-wrap}
+.log .l{padding:1px 0}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 9px;border-radius:20px;background:var(--navy-soft);color:var(--navy);margin-left:8px}
+.steptag{font-family:var(--mono);font-size:11px;color:var(--brass);letter-spacing:.05em}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -189,355 +45,144 @@ footer{margin-top:28px;color:var(--mute);font-size:11px;font-family:var(--mono)}
 <div id="gate">
   <div class="card">
     <div class="kicker">BITS Pilani Digital</div>
-    <h1>Lumen Lab · Cohort Usage</h1>
-    <p>Restricted analytics. Enter the access password to decrypt the report in your browser.</p>
-    <input id="pw" type="password" placeholder="Access password" autocomplete="current-password">
-    <button id="enter">Unlock</button>
-    <div class="err" id="gerr"></div>
+    <h1>Lumen Lab · Admin</h1>
+    <p class="muted">Same access password as the dashboard. It also encrypts the file.</p>
+    <label>Password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <div style="height:12px"></div>
+    <button class="primary" id="enter">Unlock</button>
+    <div class="err" id="gerr" style="margin-top:8px;min-height:16px;font-size:12.5px"></div>
   </div>
 </div>
 
-<div id="app"></div>
+<div class="wrap" id="app" style="display:none">
+  <div class="kicker">Admin uploader</div>
+  <h1 style="margin-bottom:20px">Cohort lab usage</h1>
 
-<div id="scrim"></div>
-<aside id="drawer">
-  <div class="dr-head"><div style="flex:1"><h3 id="drTitle">—</h3><div class="dr-sub" id="drSub"></div></div><button class="x" id="drClose">×</button></div>
-  <div class="dr-tools"><button class="dlbtn" id="drCsv">Export CSV (full values)</button><span class="dr-sub" id="drCount"></span></div>
-  <div class="dr-body" id="drBody"></div>
-</aside>
+  <div class="card">
+    <div class="steptag">Step 1</div>
+    <h2>GitHub access token</h2>
+    <p class="muted">Fine-grained token with <b>Contents: Read &amp; write</b> on the target repo. Pasted at runtime — never committed.</p>
+    <label>Token</label>
+    <input id="tok" type="password" placeholder="github_pat_…">
+    <div class="row" style="margin-top:10px">
+      <label style="margin:0;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:12.5px;color:var(--dim)"><input type="checkbox" id="remember" style="width:auto;vertical-align:-1px"> remember for this tab</label>
+      <button class="ghost" id="forget" style="margin-left:auto">Forget token</button>
+    </div>
+    <div class="muted" style="margin-top:10px">Target: <span class="mono" id="repoLine"></span></div>
+  </div>
+
+  <div class="card">
+    <div class="steptag">Step 2</div>
+    <h2>Choose the CSV export</h2>
+    <p class="muted">The cohort report CSV. It is validated, encrypted, then pushed.</p>
+    <input id="file" type="file" accept=".csv,text/csv">
+    <div class="muted" id="fileInfo" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="steptag">Step 3</div>
+    <h2>Validate, encrypt &amp; push</h2>
+    <p class="muted">Writes a dated backup and the live file. Existing files are updated via their SHA (with one retry).</p>
+    <button class="primary" id="go" disabled>Encrypt &amp; upload</button>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+
+  <button class="ghost" id="lock">Lock &amp; sign out</button>
+</div>
 
 <script>
-const DATA_FILE = 'data/cohort-report.csv';
-const PASSWORD_HASH = 'c33cf8fc5aa884baed13a7cd33300f9cea032afbee87ad79a53853cb17206ba8'; // SHA-256 of the access password. To change: hash a new one.
-const SESSION_TIMEOUT_MINS = 30;
-const MASK_PII = true;
-const TZ_NOTE = "All times shown exactly as recorded in the source (the platform's own timezone). No conversion is applied.";
-const T_USED = 0.1, T_ENG = 1.0, T_ACT = 6.0;
+/* =================================================================================
+   CONFIG  —  CONFIRM THESE  ▼▼▼
+   ================================================================================= */
+const GITHUB_OWNER  = 'ravi-agarwal-bits-digital';
+const GITHUB_REPO   = 'lumen-lab-analytics';
+const GITHUB_BRANCH = 'main';
+/* ▲▲▲  CONFIRM THESE  ============================================================ */
 
-const MAGIC="AANYAENC1"; const te=new TextEncoder(), tdc=new TextDecoder();
-async function sha256hex(str){const b=await crypto.subtle.digest('SHA-256',te.encode(str));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+const DATA_FILE_LIVE   = 'data/cohort-report.csv';
+const DATA_FILE_PREFIX = 'data/cohort-report';
+const ADMIN_PASSWORD_HASH = 'c33cf8fc5aa884baed13a7cd33300f9cea032afbee87ad79a53853cb17206ba8'; // SHA-256 of access password; MUST match dashboard
+const REQUIRED_COLS = ['User','Course','Status','Start Date','EC2 Total Time','First Seen','Last Seen'];
+
+const MAGIC='AANYAENC1'; const te=new TextEncoder();
+async function sha256hex(s){const b=await crypto.subtle.digest('SHA-256',te.encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 async function deriveKey(pw,salt){const base=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
-  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);}
-async function maybeDecrypt(buf,pw){
-  const bytes=new Uint8Array(buf);
-  if(tdc.decode(bytes.slice(0,MAGIC.length))!==MAGIC) return tdc.decode(bytes);
-  const salt=bytes.slice(9,25), iv=bytes.slice(25,37), ct=bytes.slice(37);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:600000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt']);}
+async function encrypt(text,pw){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
   const key=await deriveKey(pw,salt);
-  return tdc.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct));
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode(text)));
+  const out=new Uint8Array(9+16+12+ct.length); let o=0;
+  out.set(te.encode(MAGIC),o);o+=9; out.set(salt,o);o+=16; out.set(iv,o);o+=12; out.set(ct,o);
+  return out;
 }
+function toB64(bytes){let s='';const C=0x8000;for(let i=0;i<bytes.length;i+=C)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+C));return btoa(s);}
 
-function parseCSV(text){
-  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
-  const rows=[]; let i=0,field='',row=[],inq=false;
-  while(i<text.length){const c=text[i];
-    if(inq){ if(c==='"'){if(text[i+1]==='"'){field+='"';i+=2;continue;}inq=false;i++;continue;} field+=c;i++;continue;}
-    if(c==='"'){inq=true;i++;continue;}
-    if(c===','){row.push(field);field='';i++;continue;}
-    if(c==='\r'){i++;continue;}
-    if(c==='\n'){row.push(field);rows.push(row);row=[];field='';i++;continue;}
-    field+=c;i++;
-  }
-  if(field.length||row.length){row.push(field);rows.push(row);}
-  return rows;
-}
-function parseMDY(s){s=(s||'').trim();const m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;return {Y:+m[1],M:+m[2],D:+m[3],key:+m[1]*10000+ +m[2]*100+ +m[3]};}
-function parseDateTime(s){s=(s||'').trim();const m=s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);if(!m)return null;return {Y:+m[1],M:+m[2],D:+m[3],h:+m[4],mi:+m[5],key:+m[1]*10000+ +m[2]*100+ +m[3]};}
-function parseDurationH(s){s=(s||'').trim();if(!s)return null;let days=0;let m=s.match(/^(\d+)\s*day[s]?,\s*(.+)$/i);if(m){days=+m[1];s=m[2].trim();}m=s.match(/^(\d{1,2}):(\d{2}):(\d{2})(?:\s*(AM|PM))?$/i);if(!m)return null;let h=+m[1];const mi=+m[2],se=+m[3],ap=m[4]&&m[4].toUpperCase();if(ap==='AM'&&h===12)h=0;else if(ap==='PM'&&h!==12)h+=12;return days*24+h+mi/60+se/3600;}
-const MN=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function fmtKey(k){if(!k)return '—';const Y=Math.floor(k/10000),M=Math.floor(k/100)%100,D=k%100;return `${MN[M]} ${D}, ${Y}`;}
-function fmtDT(o){if(!o)return '—';const h12=((o.h+11)%12)+1,ap=o.h<12?'AM':'PM';return `${MN[o.M]} ${o.D}, ${o.Y}  ${h12}:${String(o.mi).padStart(2,'0')} ${ap}`;}
-function fmtH(x){if(x==null)return '—';if(x<1)return (x*60).toFixed(0)+' min';return x.toFixed(2)+' h';}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function maskEmail(e){if(!MASK_PII)return e;const m=String(e).match(/^(.{1,2}).*?(@.*)$/);return m?m[1]+'…'+m[2]:'…';}
-function maskName(n){return n;}  /* names shown in view; emails masked. Full values in CSV exports. */
-
-function cohortOf(sk,ek){if(!sk||!ek)return 'Unknown term';const sY=Math.floor(sk/10000),sM=Math.floor(sk/100)%100,eY=Math.floor(ek/10000),eM=Math.floor(ek/100)%100;return sY===eY?`${MN[sM]} – ${MN[eM]} ${eY}`:`${MN[sM]} ${sY} – ${MN[eM]} ${eY}`;}
-function baseCourse(c){return String(c).replace(/-\d{4}-t\d+$/,'');}
-function buildRecords(text){
-  const rows=parseCSV(text); const hdr=rows[0].map(h=>h.trim()); const ix={}; hdr.forEach((h,i)=>ix[h]=i);
-  const recs=[];
-  for(let r=1;r<rows.length;r++){
-    const row=rows[r]; if(!row||row.every(c=>c.trim()==='')) continue;
-    const g=n=>(row[ix[n]]!=null?row[ix[n]]:'').trim();
-    const fs=parseDateTime(g('First Seen')), ls=parseDateTime(g('Last Seen'));
-    const at=fs||ls; const atFromLS=!fs&&!!ls;          /* activity timestamp: First Seen preferred, else Last Seen */
-    const ec2h=parseDurationH(g('EC2 Total Time'))||0;  /* compute hours derived from EC2 Total Time (instance uptime) */
-    const connh=parseDurationH(g('Connection Time'));
-    const connected=!!at; const idleh=connected?Math.max(0,ec2h-(connh||0)):ec2h;
-    const sk=(parseMDY(g('Start Date'))||{}).key||0;
-    const ek=(parseMDY(g('End Date'))||{}).key||0;
-    const rec={i:recs.length,user:g('User'),userName:g('User Name'),course:g('Course'),base:baseCourse(g('Course')),status:g('Status'),
-      startKey:sk,endKey:ek,cohortKey:sk,ec2h,connh,fs,ls,at,atFromLS,connected,idleh,
-      cohort:cohortOf(sk,ek),band:'',raw:{}};
-    hdr.forEach(h=>rec.raw[h]=g(h)); rec.band=classify(rec); recs.push(rec);
-  }
-  return recs;
-}
-function classify(r){if(!r.connected)return 'never';if(r.ec2h<T_USED)return 'trivial';if(r.ec2h<T_ENG)return 'light';if(r.ec2h<T_ACT)return 'active';return 'power';}
-const BAND_INFO={power:{label:'Power',reason:'≥6 compute-hours — sustained, heavy lab use.'},active:{label:'Active',reason:'1–6 compute-hours — meaningful working sessions.'},light:{label:'Light',reason:'Connected but under 1 hour of compute.'},trivial:{label:'Trivial',reason:'Connected but under ~6 minutes — likely a look-in.'},never:{label:'Never connected',reason:'Lab provisioned but no session ever recorded — wasted provisioning.'}};
-const sum=(a,f)=>a.reduce((s,x)=>s+(f?f(x):x),0); const div=(a,b)=>b?a/b:0; const uniq=(a,f)=>new Set(a.map(f)).size;
-
-const STATE={all:[],cohort:'__all',course:'__all',from:'',to:''};
-function cohortPool(){return STATE.all.filter(r=>(STATE.cohort==='__all'||r.cohort===STATE.cohort)&&(STATE.course==='__all'||r.base===STATE.course));}
-function rangeKeys(){const f=STATE.from?+STATE.from.replaceAll('-',''):null;const t=STATE.to?+STATE.to.replaceAll('-',''):null;return [f,t];}
-function inRange(r){const [f,t]=rangeKeys();if(!r.at)return false;if(f&&r.at.key<f)return false;if(t&&r.at.key>t)return false;return true;}
-function rangeActive(){return !!(STATE.from||STATE.to);}
-
-const IC={
-  dash:'<path d="M3 3h7v7H3zM14 3h7v4h-7zM14 10h7v11h-7zM3 13h7v8H3z"/>',
-  funnel:'<path d="M3 4h18l-7 8v7l-4 2v-9z"/>',
-  books:'<path d="M4 5v15M8 5v15M4 5h4M4 20h4M12 5h8v15h-8z"/>',
-  trend:'<path d="M3 17l6-6 4 4 8-8M21 7v5h-5"/>',
-  flame:'<path d="M12 3c2 4-1 5 1 8 1-1 1-2 1-3 2 2 3 4 3 6a5 5 0 0 1-10 0c0-3 3-5 4-11z"/>',
-  users:'<path d="M16 21v-2a4 4 0 0 0-8 0v2M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6M20 21v-2a3 3 0 0 0-2-3"/>',
-  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-  hist:'<path d="M4 20V10M9 20V4M14 20v-7M19 20V8"/>',
-  target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>',
-  table:'<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v16"/>'
-};
-function ic(k){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;}
-function warnIcon(){return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 1 21h22L12 2z"/><path d="M12 9v5M12 17v.5"/></svg>`;}
-const NAV=[['01','Overview','dash'],['02','Activation funnel','funnel'],['03','By course','books'],['04','Trend','trend'],['05','Heaviest compute','flame'],['06','Multi-course','users'],['07','Time rhythm','clock'],['08','Distribution','hist'],['09','Outcomes','target'],['10','Explorer','table']];
-
+let PW='', CSV_TEXT='', FILE_OK=false;
 const $=s=>document.querySelector(s);
-function render(){
-  const pool=cohortPool();
-  const cohorts=[...new Set(STATE.all.map(r=>r.cohort))].sort((a,b)=>(STATE.all.find(r=>r.cohort===a).cohortKey)-(STATE.all.find(r=>r.cohort===b).cohortKey));
-  const courses=[...new Set(STATE.all.map(r=>r.base))].sort();
-  const minStart=pool.length?Math.min(...pool.map(r=>r.startKey).filter(Boolean)):0;
-  $('#app').innerHTML=`
-    <div class="layout">
-      <aside class="rail">
-        <div class="brand"><div class="n">Lumen Lab</div><small>BITS Pilani Digital</small></div>
-        <nav>${NAV.map(([n,t,i])=>`<a data-go="sec-${n}"><span class="num">${n}</span>${ic(i)}<span>${t}</span></a>`).join('')}</nav>
-        <div class="foot"><button id="lockBtn">Lock &amp; sign out</button>Decrypted in-browser · AES-256-GCM</div>
-      </aside>
-      <main class="main">
-        <div class="tophead">
-          <div>
-            <div class="kicker">Cohort lab usage</div>
-            <h1>Overview</h1>
-            <div class="sub">${pool.length} provisioned labs · ${uniq(pool,r=>r.user)} learners · ${uniq(pool,r=>r.base)} courses${minStart?' · since '+fmtKey(minStart):''}</div>
-          </div>
-          <div class="controls">
-            <div class="grp"><label>Term (cohort)</label><select id="fCohort"><option value="__all">All terms</option>${cohorts.map(c=>`<option value="${esc(c)}" ${c===STATE.cohort?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
-            <div class="grp"><label>Course</label><select id="fCourse"><option value="__all">All courses</option>${courses.map(c=>`<option value="${esc(c)}" ${c===STATE.course?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
-            <div class="grp"><label>Activity from</label><input type="date" id="fFrom" value="${STATE.from}"></div>
-            <div class="grp"><label>to</label><input type="date" id="fTo" value="${STATE.to}"></div>
-            <div class="grp"><button class="btn-ghost" id="fClear">Clear dates</button></div>
-          </div>
-        </div>
-        ${actBand(pool)}
-        <div id="secs"></div>
-      </main>
-    </div>`;
-  $('#secs').innerHTML=[secKPI(pool),secFunnel(pool),secCourse(pool),secTrend(pool),secLeader(pool),secMulti(pool),secRhythm(pool),secDist(pool),secOutcome(pool),secExplorer(pool),methodology()].join('');
-  $('#fCohort').onchange=e=>{STATE.cohort=e.target.value;render();};
-  $('#fCourse').onchange=e=>{STATE.course=e.target.value;render();};
-  $('#fFrom').onchange=e=>{STATE.from=e.target.value;render();};
-  $('#fTo').onchange=e=>{STATE.to=e.target.value;render();};
-  $('#fClear').onclick=()=>{STATE.from='';STATE.to='';render();};
-  $('#lockBtn').onclick=lock;
-  document.querySelectorAll('[data-go]').forEach(a=>a.onclick=()=>{const el=document.getElementById(a.dataset.go);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
-  wireExplorer(pool);
-  setupNav();
-}
-function actBand(p){
-  const never=p.filter(r=>!r.connected); const wasteH=sum(never,r=>r.ec2h); const idle=sum(p,r=>r.idleh);
-  if(!p.length) return '';
-  if(!never.length) return `<div class="actband"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg><div class="t"><b>Healthy activation.</b> Every provisioned lab in this view was opened at least once. Idle uptime across labs is <b>${idle.toFixed(0)} hours</b> — the main remaining lever for compute savings.</div></div>`;
-  return `<div class="actband">${warnIcon()}<div class="t"><b>Where to act:</b> <b>${never.length} of ${p.length}</b> provisioned labs (${(div(never.length,p.length)*100).toFixed(0)}%) were never opened, yet still consumed <b>~${wasteH.toFixed(0)} compute hours</b>. Combined idle uptime across all labs is <b>${idle.toFixed(0)} hours</b>. Tighter auto-shutdown and provisioning-on-demand is the clearest saving.</div></div>`;
-}
+const TKEY='cohort_admin_tok';
 
-function secKPI(p){
-  const learners=uniq(p,r=>r.user); const conn=p.filter(r=>r.connected);
-  const hrs=sum(p,r=>r.ec2h); const idle=sum(p,r=>r.idleh); const never=p.filter(r=>!r.connected);
-  const actHrs=conn.map(r=>r.ec2h).sort((a,b)=>a-b); const med=actHrs.length?actHrs[Math.floor(actHrs.length/2)]:0;
-  const K=(lbl,val,cap,drill,prob)=>`<div class="kpi ${prob?'problem':''}" data-drill="${drill}"><span class="arrow">↗</span><div class="lbl">${lbl}</div><div class="val">${val}</div><div class="cap">${cap}</div></div>`;
-  return sec('01','Overview','Tap any tile to inspect the underlying labs.',
-    `<div class="kpis">
-      ${K('Provisioned labs',p.length,'learner × course instances','all')}
-      ${K('Distinct learners',learners,'unique accounts','learners')}
-      ${K('Compute hours',hrs.toFixed(0),'total instance uptime','allhours')}
-      ${K('Activation rate',(div(conn.length,p.length)*100).toFixed(0)+'%',conn.length+' ever connected','connected')}
-      ${K('Never activated',never.length,(div(never.length,p.length)*100).toFixed(0)+'% provisioned, never used','never',true)}
-      ${K('Idle compute',idle.toFixed(0)+' h','uptime without engagement','idle',true)}
-      ${K('Median active load',fmtH(med),'per connected lab','connected')}
-    </div>`);
-}
-function secFunnel(p){
-  const stages=[['Provisioned',p.length,'all'],['Connected',p.filter(r=>r.connected).length,'connected'],['Used compute (>6 min)',p.filter(r=>r.ec2h>=T_USED).length,'used'],['Engaged (≥1 h)',p.filter(r=>r.ec2h>=T_ENG).length,'engaged']];
-  const max=stages[0][1]||1; let body='';
-  stages.forEach((s,i)=>{const pct=div(s[1],max)*100;
-    body+=`<div class="funnel-stage" data-drill="${s[2]}"><div class="bar-row"><div class="name">${esc(s[0])}</div><div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%"></div></div><div class="bar-val">${s[1]} · ${pct.toFixed(0)}%</div></div></div>`;
-    if(i<stages.length-1){const lost=s[1]-stages[i+1][1];const lpct=div(lost,s[1])*100;if(lost>0)body+=`<div class="leak">${warnIcon()} ${lost} dropped here (${lpct.toFixed(0)}% leak)</div>`;}});
-  return sec('02','Activation funnel','From a provisioned lab to genuine engagement.',`<div class="card">${body||emptyEl()}</div>`);
-}
-function secCourse(p){
-  const by={}; p.forEach(r=>{(by[r.base]=by[r.base]||[]).push(r);});
-  const rows=Object.entries(by).map(([c,a])=>({c,n:a.length,conn:a.filter(r=>r.connected).length,hrs:sum(a,r=>r.ec2h)})).sort((a,b)=>b.n-a.n);
-  if(!rows.length)return sec('03','By course','',`<div class="card">${emptyEl()}</div>`);
-  const max=Math.max(...rows.map(r=>r.n));
-  const body=rows.map(r=>`<div class="bar-row" data-drill="course:${esc(r.c)}"><div class="name" title="${esc(r.c)}">${esc(r.c)}</div><div class="bar-track"><div class="bar-fill" style="width:${(div(r.n,max)*100).toFixed(1)}%"></div></div><div class="bar-val">${r.n} · ${(div(r.conn,r.n)*100).toFixed(0)}% · ${r.hrs.toFixed(0)}h</div></div>`).join('');
-  return sec('03','By course','Base courses across the current selection — activation rate and compute hours.',`<div class="card">${body}</div>`);
-}
-function secTrend(p){
-  const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
-  if(!act.length)return sec('04','Activation trend',rangeNote(),`<div class="card">${emptyEl('No first-seen activity in this selection.')}</div>`);
-  const days={}; act.forEach(r=>{days[r.at.key]=(days[r.at.key]||0)+1;});
-  const keys=Object.keys(days).map(Number).sort((a,b)=>a-b); const mid=keys[Math.floor(keys.length/2)];
-  const early=sum(keys.filter(k=>k<mid),k=>days[k]),recent=sum(keys.filter(k=>k>=mid),k=>days[k]);
-  const mv=recent>=early?`<span style="color:var(--good)">▲ rising</span>`:`<span style="color:var(--amber)">▼ cooling</span>`;
-  return sec('04','Activation trend',rangeNote(),`<div class="card">${lineChart(keys.map(k=>({k,v:days[k]})))}<div class="legend">First activations per day. Earlier half: <b class="mono">${early}</b> · recent half: <b class="mono">${recent}</b> &nbsp; ${mv}</div></div>`);
-}
-function secLeader(p){
-  const conn=[...p.filter(r=>r.connected)].sort((a,b)=>b.ec2h-a.ec2h).slice(0,15);
-  if(!conn.length)return sec('05','Heaviest compute','',`<div class="card">${emptyEl()}</div>`);
-  const body=conn.map((r,i)=>{const engPct=div((r.connh||0),r.ec2h)*100;
-    return `<div class="lead-row" data-drill="rec:${r.i}"><div class="rank">${i+1}</div><div class="who"><div class="n">${esc(maskName(r.userName))}</div><div class="e">${esc(maskEmail(r.user))} · ${esc(r.course)}</div><div class="split-bar"><div class="eng" style="width:${engPct}%"></div><div class="idle" style="width:${100-engPct}%"></div></div></div><div><span class="band ${r.band}">${BAND_INFO[r.band].label}</span></div><div class="hh">${r.ec2h.toFixed(2)} h</div></div>`;}).join('');
-  return sec('05','Heaviest compute','Ranked by compute hours. Bar splits engaged vs idle time.',`<div class="card">${body}<div class="legend"><span><i style="background:var(--navy2)"></i>Engaged time</span><span><i style="background:var(--brass)"></i>Idle uptime</span></div></div>`);
-}
-function secMulti(p){
-  const by={}; p.forEach(r=>{(by[r.user]=by[r.user]||[]).push(r);});
-  const multi=Object.entries(by).filter(([,a])=>a.length>1).map(([u,a])=>({u,ref:a[0].i,name:a[0].userName,n:a.length,hrs:sum(a,r=>r.ec2h),conn:a.filter(r=>r.connected).length})).sort((a,b)=>b.n-a.n||b.hrs-a.hrs).slice(0,15);
-  if(!multi.length)return sec('06','Multi-course learners','No learner appears in more than one course here.',`<div class="card">${emptyEl()}</div>`);
-  const body=multi.map(m=>`<div class="lead-row" style="grid-template-columns:1fr 120px auto" data-drill="user:${m.ref}"><div class="who"><div class="n">${esc(maskName(m.name))}</div><div class="e">${esc(maskEmail(m.u))}</div></div><div class="mono" style="font-size:12px;color:var(--dim)">${m.conn}/${m.n} activated</div><div class="bar-val">${m.n} courses · ${m.hrs.toFixed(0)}h</div></div>`).join('');
-  return sec('06','Multi-course learners','Learners enrolled across several labs — grouped by account.',`<div class="card">${body}</div>`);
-}
-function secRhythm(p){
-  const act=p.filter(r=>r.at&&(!rangeActive()||inRange(r)));
-  if(!act.length)return sec('07','Time rhythm',rangeNote(),`<div class="card">${emptyEl('No activity timestamps in this selection.')}</div>`);
-  const hours=new Array(24).fill(0); act.forEach(r=>hours[r.at.h]++);
-  return sec('07','Time rhythm',TZ_NOTE,`<div class="card">${hourBars(hours)}<div class="legend">First connection by hour of day — staffing &amp; support timing.</div></div>`);
-}
-function secDist(p){
-  const buckets=[['0 (never used)',r=>r.ec2h===0,'hist:0'],['<6 min',r=>r.ec2h>0&&r.ec2h<0.1,'hist:t'],['6 min–1 h',r=>r.ec2h>=0.1&&r.ec2h<1,'hist:l'],['1–3 h',r=>r.ec2h>=1&&r.ec2h<3,'hist:a1'],['3–6 h',r=>r.ec2h>=3&&r.ec2h<6,'hist:a2'],['6–12 h',r=>r.ec2h>=6&&r.ec2h<12,'hist:p1'],['12 h+',r=>r.ec2h>=12,'hist:p2']];
-  const counts=buckets.map(b=>({lbl:b[0],n:p.filter(b[1]).length,drill:b[2]})); const max=Math.max(1,...counts.map(c=>c.n));
-  const body=counts.map(c=>`<div class="bar-row" data-drill="${c.drill}"><div class="name">${esc(c.lbl)}</div><div class="bar-track"><div class="bar-fill" style="width:${(div(c.n,max)*100).toFixed(1)}%"></div></div><div class="bar-val">${c.n}</div></div>`).join('');
-  return sec('08','Compute distribution','How lab uptime is spread across all instances.',`<div class="card">${body}</div>`);
-}
-function secOutcome(p){
-  const order=['power','active','light','trivial','never']; const by={}; order.forEach(b=>by[b]=p.filter(r=>r.band===b));
-  const max=Math.max(1,...order.map(b=>by[b].length));
-  const body=order.map(b=>`<div class="bar-row" data-drill="band:${b}"><div class="name"><span class="band ${b}">${BAND_INFO[b].label}</span></div><div class="bar-track"><div class="bar-fill" style="width:${(div(by[b].length,max)*100).toFixed(1)}%;background:${bandColor(b)}"></div></div><div class="bar-val">${by[b].length}</div></div><div class="dr-sub" style="margin:0 0 9px 4px">${esc(BAND_INFO[b].reason)}</div>`).join('');
-  return sec('09','Outcome classification','Every lab assigned to exactly one band by its strongest compute signal.',`<div class="card">${body}</div>`);
-}
-function bandColor(b){return {power:'var(--navy2)',active:'var(--good)',light:'#B4B0A4',trivial:'var(--amber)',never:'var(--brass)'}[b];}
-
-let EXP={sort:'ec2h',dir:-1,q:''};
-function secExplorer(p){
-  return sec('10','Explorer','Sort, search, expand a row for the raw record. CSV export is full-value.',
-    `<div class="card"><div class="exp-tools"><input id="expQ" placeholder="Search name, email, course, status…" value="${esc(EXP.q)}"><button class="dlbtn" id="expCsv">Export CSV (full values)</button></div><div class="tbl-wrap"><table id="expTbl"></table></div></div>`);
-}
-const EXP_COLS=[['userName','Learner',r=>esc(maskName(r.userName))],['user','Account',r=>`<span class="mono">${esc(maskEmail(r.user))}</span>`],['course','Course',r=>esc(r.course)],['cohort','Cohort',r=>esc(r.cohort)],['status','Status',r=>esc(r.status)],['ec2h','Compute h',r=>`<span class="num-cell">${r.ec2h.toFixed(2)}</span>`],['connh','Engaged h',r=>`<span class="num-cell">${r.connh==null?'—':r.connh.toFixed(2)}</span>`],['fs','First activity',r=>r.at?fmtDT(r.at)+(r.atFromLS?' <span style="color:var(--mute)">(last seen)</span>':''):'<span style="color:var(--mute)">never</span>'],['band','Band',r=>`<span class="band ${r.band}">${BAND_INFO[r.band].label}</span>`]];
-function wireExplorer(pool){
-  const draw=()=>{
-    let rows=pool.filter(r=>{if(!EXP.q)return true;const q=EXP.q.toLowerCase();return (r.userName+' '+r.user+' '+r.course+' '+r.status+' '+r.cohort).toLowerCase().includes(q);});
-    rows.sort((a,b)=>{let av=a[EXP.sort],bv=b[EXP.sort];if(EXP.sort==='fs'){av=a.at?a.at.key*10000+a.at.h*60+a.at.mi:0;bv=b.at?b.at.key*10000+b.at.h*60+b.at.mi:0;}if(typeof av==='string')return EXP.dir*av.localeCompare(bv);return EXP.dir*((av||0)-(bv||0));});
-    const head=`<thead><tr>${EXP_COLS.map(c=>`<th data-col="${c[0]}">${c[1]}${EXP.sort===c[0]?(EXP.dir<0?' ▾':' ▴'):''}</th>`).join('')}</tr></thead>`;
-    const body=`<tbody>${rows.length?rows.map(r=>`<tr data-drill="rec:${r.i}">${EXP_COLS.map(c=>`<td>${c[2](r)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${EXP_COLS.length}"><div class="empty">No rows match.</div></td></tr>`}</tbody>`;
-    $('#expTbl').innerHTML=head+body;
-    $('#expTbl').querySelectorAll('th').forEach(th=>th.onclick=()=>{const c=th.dataset.col;if(EXP.sort===c)EXP.dir*=-1;else{EXP.sort=c;EXP.dir=['userName','user','course','status','cohort'].includes(c)?1:-1;}draw();});
-  };
-  draw();
-  $('#expQ').oninput=e=>{EXP.q=e.target.value;draw();};
-  $('#expCsv').onclick=()=>exportCSV(pool,'cohort-explorer');
-}
-
-function lineChart(pts){
-  const W=720,H=180,pad=30; if(!pts.length)return emptyEl();
-  const maxV=Math.max(...pts.map(p=>p.v));
-  const x=i=>pad+(pts.length<2?0:(W-2*pad)*i/(pts.length-1));
-  const y=v=>H-pad-(H-2*pad)*div(v,maxV);
-  const d=pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
-  const area=`${d} L${x(pts.length-1).toFixed(1)} ${H-pad} L${x(0).toFixed(1)} ${H-pad} Z`;
-  const ticks=pts.filter((_,i)=>i%Math.ceil(pts.length/6)===0);
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:210px"><path d="${area}" fill="var(--navy-soft)"/><path d="${d}" fill="none" stroke="var(--navy2)" stroke-width="2"/>${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.4" fill="var(--navy)"/>`).join('')}${ticks.map(p=>{const i=pts.indexOf(p);return `<text x="${x(i).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${fmtKey(p.k).replace(/, \d+$/,'')}</text>`;}).join('')}<text x="${pad}" y="15" font-size="9" fill="var(--mute)">peak ${maxV}/day</text></svg>`;
-}
-function hourBars(hours){
-  const W=720,H=170,pad=26,n=24,gap=4; const max=Math.max(1,...hours); const bw=(W-2*pad)/n-gap;
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:200px">${hours.map((v,i)=>{const h=(H-2*pad)*div(v,max);const x=pad+i*((W-2*pad)/n);const y=H-pad-h;return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${v===max?'var(--brass)':'var(--navy2)'}"/>`+(i%3===0?`<text x="${(x+bw/2).toFixed(1)}" y="${H-9}" font-size="9" fill="var(--mute)" text-anchor="middle">${i}</text>`:'');}).join('')}</svg>`;
-}
-function sec(num,title,note,inner){return `<section class="block" id="sec-${num}"><div class="sec-head"><span class="num">${num}</span><h2>${esc(title)}</h2>${note?`<span class="note">${esc(note)}</span>`:''}</div>${inner}</section>`;}
-function emptyEl(msg){return `<div class="empty">${esc(msg||'No data for this selection.')}</div>`;}
-function rangeNote(){return rangeActive()?`Activity ${STATE.from||'…'} → ${STATE.to||'…'}`:TZ_NOTE;}
-
-function setupNav(){
-  if(typeof IntersectionObserver==='undefined')return;
-  const links={}; document.querySelectorAll('[data-go]').forEach(a=>links[a.dataset.go]=a);
-  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){Object.values(links).forEach(l=>l.classList.remove('on'));const a=links[e.target.id];if(a)a.classList.add('on');}});},{rootMargin:'-15% 0px -70% 0px'});
-  NAV.forEach(([n])=>{const el=document.getElementById('sec-'+n);if(el)obs.observe(el);});
-}
-
-function drillSet(key){
-  const p=cohortPool();
-  const f={all:[()=>p,'All provisioned labs'],learners:[()=>p,'All labs (by learner)'],allhours:[()=>p,'All labs (compute hours)'],connected:[()=>p.filter(r=>r.connected),'Connected labs'],never:[()=>p.filter(r=>!r.connected),'Never-activated labs'],idle:[()=>p.filter(r=>r.idleh>0).sort((a,b)=>b.idleh-a.idleh),'Labs with idle compute'],used:[()=>p.filter(r=>r.ec2h>=T_USED),'Labs that used compute (>6 min)'],engaged:[()=>p.filter(r=>r.ec2h>=T_ENG),'Engaged labs (≥1 h)']};
-  if(f[key])return {title:f[key][1],recs:f[key][0]()};
-  const [k,arg]=key.split(/:(.+)/);
-  if(k==='course')return {title:'Course · '+arg,recs:p.filter(r=>r.base===arg)};
-  if(k==='band')return {title:'Outcome · '+BAND_INFO[arg].label,recs:p.filter(r=>r.band===arg)};
-  if(k==='user'){const u=STATE.all[+arg].user;return {title:'Learner · '+maskEmail(u),recs:p.filter(r=>r.user===u)};}
-  if(k==='rec')return {title:'Lab record',recs:[STATE.all[+arg]]};
-  if(k==='hist'){const m={'0':r=>r.ec2h===0,'t':r=>r.ec2h>0&&r.ec2h<0.1,'l':r=>r.ec2h>=0.1&&r.ec2h<1,'a1':r=>r.ec2h>=1&&r.ec2h<3,'a2':r=>r.ec2h>=3&&r.ec2h<6,'p1':r=>r.ec2h>=6&&r.ec2h<12,'p2':r=>r.ec2h>=12};return {title:'Compute band',recs:p.filter(m[arg])};}
-  return {title:'Selection',recs:[]};
-}
-let DRILL=[];
-function openDrill(key){
-  const {title,recs}=drillSet(key); DRILL=recs;
-  $('#drTitle').textContent=title; $('#drSub').textContent=[STATE.cohort==='__all'?'All terms':STATE.cohort,STATE.course==='__all'?'All courses':STATE.course].join(' · ');
-  $('#drCount').textContent=recs.length+' record'+(recs.length===1?'':'s');
-  $('#drBody').innerHTML=recs.length?recs.map(r=>`<details class="dr-item" data-i="${r.i}"><summary><div><div class="nm">${esc(maskName(r.userName))} <span class="band ${r.band}" style="margin-left:6px">${BAND_INFO[r.band].label}</span></div><div class="meta">${esc(maskEmail(r.user))} · ${esc(r.course)}</div></div><div style="text-align:right"><div class="tag">${r.ec2h.toFixed(2)} h</div><div class="meta">${r.at?fmtDT(r.at)+(r.atFromLS?' (last seen)':''):'never connected'}</div></div></summary><div class="dr-raw"></div></details>`).join(''):emptyEl();
-  $('#scrim').classList.add('on'); $('#drawer').classList.add('on');
-}
-function lazyRaw(det){const box=det.querySelector('.dr-raw');if(!box||box.dataset.done)return;const r=STATE.all[+det.dataset.i];box.innerHTML=Object.entries(r.raw).map(([k,v])=>{let val=v;if(MASK_PII&&k==='User')val=maskEmail(v);if(MASK_PII&&k==='User Name')val=maskName(v);return `<div><span class="k">${esc(k)}</span><span>${esc(val||'—')}</span></div>`;}).join('');box.dataset.done='1';}
-function closeDrill(){$('#scrim').classList.remove('on');$('#drawer').classList.remove('on');}
-
-function exportCSV(recs,name){
-  if(!recs.length)return; const cols=Object.keys(recs[0].raw);
-  const q=v=>{v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const csv=[cols.join(',')].concat(recs.map(r=>cols.map(c=>q(r.raw[c])).join(','))).join('\r\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${name}-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-}
-
-function methodology(){
-  return `<details class="method"><summary>How these metrics are derived</summary><div class="body">
-    <h4>One row = one provisioned lab</h4>Each record is a single learner enrolled in a single course (a provisioned EC2 lab instance).
-    <h4>Compute hours</h4><code>EC2 Total Time</code> (instance uptime — the cost driver) is parsed directly to hours and is the canonical compute figure. Durations beyond a day (<code>1 day, 9:15:18</code>) are parsed in full.
-    <h4>Engaged hours &amp; idle</h4><code>Connection Time</code> is parsed for engaged time (always ≤ uptime, present only when a session occurred). Idle compute = uptime minus engaged time; for never-connected labs the entire uptime counts as idle. A heuristic for waste, not a billing figure.
-    <h4>Activation</h4>A lab counts as activated if it has a <code>First Seen</code> <em>or</em> a <code>Last Seen</code> timestamp. Some labs record a last-seen without a first-seen; these clearly had a session, so they are treated as activated (marked "last seen" in the explorer) rather than as never-connected waste. Trend and rhythm use <code>First Seen</code> when present, otherwise <code>Last Seen</code>.
-    <h4>Cohort (term)</h4>A cohort is the <code>Start Date → End Date</code> term a lab belongs to (roughly a 3–4 month teaching term), labelled by its span, e.g. <code>Sep 2025 – Jan 2026</code>. The term selector filters everything.
-    <h4>Course</h4>The course filter groups by <em>base course</em> (the subject), normalising term-suffixed names like <code>Big-Data-Lab-2025-t1</code> to <code>Big-Data-Lab</code>, so a subject can be compared across terms. The full raw course name is retained in the explorer and record views.
-    <h4>Outcome bands</h4>Each lab falls into exactly one band by its strongest compute signal: Never connected · Trivial (&lt;6 min) · Light (&lt;1 h) · Active (1–6 h) · Power (≥6 h). Thresholds are editable constants.
-    <h4>Timestamps</h4>${esc(TZ_NOTE)} Date integers (<code>Y×10000+M×100+D</code>) drive range filters; no <code>Date()</code>/UTC parsing is used. The date range filters the activity sections (trend, rhythm); the cohort selector filters everything. Never-connected labs have no activity date and are excluded from date-windowed views (shown as honest empty states).
-    <h4>Privacy</h4>${MASK_PII?'Learner names are shown to the signed-in viewer; email addresses are masked on screen and in raw views. Full names and emails appear only in CSV exports you download. The app is password-gated and runs entirely in your browser — no server.':'Full learner identifiers are shown to the signed-in admin. The app is password-gated and browser-only.'}
-  </div></details>
-  <footer>Decrypted &amp; rendered in-browser · AES-256-GCM · session expires after ${SESSION_TIMEOUT_MINS} min idle · noindex.</footer>`;
-}
-
-document.addEventListener('click',e=>{const d=e.target.closest('[data-drill]');if(d){openDrill(d.dataset.drill);}});
-$('#drClose').onclick=closeDrill; $('#scrim').onclick=closeDrill;
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrill();});
-$('#drawer').addEventListener('toggle',e=>{const det=e.target.closest('.dr-item');if(det&&det.open)lazyRaw(det);},true);
-$('#drCsv').onclick=()=>exportCSV(DRILL,'cohort-selection');
-
-const SKEY='cohort_sess'; let idleTimer;
-function touch(){clearTimeout(idleTimer);idleTimer=setTimeout(lock,SESSION_TIMEOUT_MINS*60000);sessionStorage.setItem(SKEY,String(Date.now()));}
-function lock(){sessionStorage.removeItem(SKEY);sessionStorage.removeItem('cohort_pw');location.reload();}
 async function unlock(pw){
-  if(await sha256hex(pw)!==PASSWORD_HASH){$('#gerr').textContent='Incorrect password.';return;}
-  $('#gerr').textContent='Decrypting…';
-  try{
-    const res=await fetch(DATA_FILE,{cache:'no-store'}); if(!res.ok)throw new Error('Data file not found ('+res.status+'). Check DATA_FILE / repo path.');
-    STATE.all=buildRecords(await maybeDecrypt(await res.arrayBuffer(),pw));
-    if(!STATE.all.length)throw new Error('No rows parsed — wrong file or wrong password.');
-    sessionStorage.setItem('cohort_pw',pw); touch();
-    $('#gate').style.display='none'; $('#app').style.display='block'; render();
-  }catch(err){$('#gerr').textContent=err.message||'Decryption failed (wrong password?).';}
+  if(await sha256hex(pw)!==ADMIN_PASSWORD_HASH){$('#gerr').textContent='Incorrect password.';return;}
+  PW=pw; $('#gate').style.display='none'; $('#app').style.display='block';
+  $('#repoLine').textContent=`${GITHUB_OWNER}/${GITHUB_REPO} @ ${GITHUB_BRANCH}`;
+  const saved=sessionStorage.getItem(TKEY); if(saved){$('#tok').value=saved;$('#remember').checked=true;}
 }
 $('#enter').onclick=()=>unlock($('#pw').value);
 $('#pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock($('#pw').value);});
-['click','keydown','mousemove','scroll'].forEach(ev=>document.addEventListener(ev,()=>{if($('#app').style.display==='block')touch();},{passive:true}));
-(async()=>{const t=sessionStorage.getItem(SKEY),pw=sessionStorage.getItem('cohort_pw');if(t&&pw&&(Date.now()-+t)<SESSION_TIMEOUT_MINS*60000)unlock(pw);})();
+$('#lock').onclick=()=>{PW='';location.reload();};
+$('#forget').onclick=()=>{sessionStorage.removeItem(TKEY);$('#tok').value='';$('#remember').checked=false;};
+
+$('#file').addEventListener('change',async e=>{
+  FILE_OK=false; $('#go').disabled=true; const f=e.target.files[0]; if(!f) return;
+  CSV_TEXT=await f.text();
+  const firstLine=CSV_TEXT.replace(/^\uFEFF/,'').split(/\r?\n/)[0]||'';
+  const cols=firstLine.split(',').map(c=>c.replace(/^"|"$/g,'').trim());
+  const missing=REQUIRED_COLS.filter(c=>!cols.includes(c));
+  const rowCount=CSV_TEXT.replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim()).length-1;
+  if(missing.length){$('#fileInfo').innerHTML=`<span class="err">✗ Missing required columns: ${missing.join(', ')}</span>`;return;}
+  FILE_OK=true; $('#go').disabled=false;
+  $('#fileInfo').innerHTML=`<span class="ok">✓ ${f.name}</span> · ${rowCount} rows · ${cols.length} columns`;
+});
+
+function token(){return $('#tok').value.trim();}
+function logln(msg,cls){const el=$('#log');el.style.display='block';const d=document.createElement('div');d.className='l '+(cls||'');d.innerHTML=msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
+async function gh(path,opts){
+  return fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,{
+    ...opts, headers:{Authorization:`Bearer ${token()}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opts&&opts.headers||{})}});
+}
+async function getSha(path){
+  const r=await gh(`${path}?ref=${GITHUB_BRANCH}`,{method:'GET'});
+  if(r.status===200){const j=await r.json();return j.sha;} if(r.status===404)return null; throw new Error(`GET ${path} → ${r.status}`);
+}
+async function putFile(path,b64,msg){
+  for(let attempt=1;attempt<=2;attempt++){
+    const sha=await getSha(path);
+    const body={message:msg,content:b64,branch:GITHUB_BRANCH}; if(sha)body.sha=sha;
+    const r=await gh(path,{method:'PUT',body:JSON.stringify(body)});
+    if(r.ok){logln(`  ✓ ${path}${sha?' (updated)':' (created)'}`,'ok');return;}
+    if((r.status===409||r.status===422)&&attempt===1){logln(`  … ${path} ${r.status}, retrying with fresh SHA`,'warn');continue;}
+    const t=await r.text(); throw new Error(`PUT ${path} → ${r.status}: ${t.slice(0,160)}`);
+  }
+}
+
+$('#go').onclick=async()=>{
+  if(!FILE_OK){logln('Choose a valid CSV first.','err');return;}
+  if(!token()){logln('Paste a GitHub token first.','err');return;}
+  $('#go').disabled=true; $('#log').innerHTML='';
+  if($('#remember').checked) sessionStorage.setItem(TKEY,token()); else sessionStorage.removeItem(TKEY);
+  try{
+    logln('Encrypting (AES-256-GCM, PBKDF2 600k)…');
+    const enc=await encrypt(CSV_TEXT,PW); const b64=toB64(enc);
+    logln(`  ✓ ${enc.length.toLocaleString()} bytes ciphertext <span class="pill">magic ${MAGIC}</span>`,'ok');
+    const d=new Date(); const dated=`${DATA_FILE_PREFIX}_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.csv`;
+    logln('Pushing dated backup…'); await putFile(dated,b64,`Cohort backup ${d.toISOString().slice(0,10)}`);
+    logln('Pushing live file…');   await putFile(DATA_FILE_LIVE,b64,`Cohort live update ${d.toISOString().slice(0,10)}`);
+    logln('Done. Dashboard will serve the new data on next unlock.','ok');
+  }catch(err){logln('✗ '+(err.message||err),'err');}
+  $('#go').disabled=false;
+};
 </script>
 </body>
 </html>
